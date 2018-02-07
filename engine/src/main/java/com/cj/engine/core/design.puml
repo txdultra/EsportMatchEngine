@@ -1,0 +1,9 @@
+@startuml
+
+abstract class AbstractMatchPattern {
+    void init();
+    void initExtend();
+    boolean initialized();
+
+}
+@enduml
