@@ -1,9 +1,11 @@
 package com.cj.engine.core;
 
+import com.cj.engine.model.CodeBaseEnum;
+
 /**
  * Created by tang on 2016/3/29.
  */
-public enum GroupMatchPatternScoringTypes {
+public enum GroupMatchPatternScoringTypes implements CodeBaseEnum {
     BigSocre(1),
     SmallScore(2),
     Mixture(3);
@@ -26,7 +28,8 @@ public enum GroupMatchPatternScoringTypes {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

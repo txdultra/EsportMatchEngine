@@ -1,9 +1,11 @@
 package com.cj.engine.core;
 
+import com.cj.engine.model.CodeBaseEnum;
+
 /**
  * Created by tang on 2016/4/7.
  */
-public enum PatternItemTypes {
+public enum PatternItemTypes implements CodeBaseEnum {
     Round(1),
     Group(2),
     Node(3);
@@ -26,7 +28,8 @@ public enum PatternItemTypes {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

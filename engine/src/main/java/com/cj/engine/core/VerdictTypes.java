@@ -1,12 +1,14 @@
 package com.cj.engine.core;
 
+import com.cj.engine.model.CodeBaseEnum;
+
 import java.io.Serializable;
 
 /**
  * Created by tang on 2016/3/16.
  */
 //裁决模式
-public enum VerdictTypes implements Serializable {
+public enum VerdictTypes implements CodeBaseEnum {
     PLAYER(1),
     VERDICT(2);
     private int value = 0;
@@ -25,7 +27,8 @@ public enum VerdictTypes implements Serializable {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

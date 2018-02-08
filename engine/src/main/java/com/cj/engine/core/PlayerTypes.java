@@ -1,11 +1,13 @@
 package com.cj.engine.core;
 
+import com.cj.engine.model.CodeBaseEnum;
+
 import java.io.Serializable;
 
 /**
  * Created by tang on 2016/3/16.
  */
-public enum PlayerTypes implements Serializable {
+public enum PlayerTypes implements CodeBaseEnum {
     Enroller(1),
     Seeder(2);
 
@@ -26,7 +28,8 @@ public enum PlayerTypes implements Serializable {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

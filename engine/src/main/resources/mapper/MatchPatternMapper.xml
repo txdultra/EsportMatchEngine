@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cj.engine.dao.MatchPatternMapper">
+    <resultMap id="result" type="com.cj.engine.model.MatchPatternInfo">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="match_id" jdbcType="INTEGER" property="matchId" />
+        <result column="cfg" jdbcType="LONGVARCHAR" property="cfg"/>
+        <result column="type" javaType="com.cj.engine.core.PatternTypes" property="type"/>
+        <result column="state" javaType="com.cj.engine.core.PatternStates" property="state"/>
+        <result column="idx" jdbcType="SMALLINT" property="index"/>
+        <result column="pid" jdbcType="INTEGER" property="pid"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="promotions" jdbcType="INTEGER" property="promotions"/>
+        <result column="group_players" jdbcType="SMALLINT" property="groupPlayers"/>
+        <result column="post_time" jdbcType="TIMESTAMP" property="postTime"/>
+        <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
+    </resultMap>
+
+    <select id="get" resultMap="result">
+        select * from match_patterns where id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.model.MatchPatternInfo" keyColumn="id" useGeneratedKeys="true">
+        insert into match_patterns(match_id,cfg,`type`,state,idx,pid,title,promotions,group_players,post_time,state,properties)
+        values(#{matchId},#{cfg},#{type},#{state},#{index},#{pid},#{title},#{promotions},#{groupPlayers},#{postTime},#{properties})
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.model.MatchPatternInfo">
+        update match_patterns set match_id=#{matchId},cfg=#{cfg},`type`=#{type},state=#{state},
+        idx=#{index},pid=#{pid},title=#{title},promotions=#{promotions},group_players=#{groupPlayers},
+        post_time=#{postTime},properties=#{properties} where id=#{id}
+    </update>
+</mapper>

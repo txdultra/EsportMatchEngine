@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cj.engine.dao.EnrollPlayerMapper">
+    <resultMap id="result" type="com.cj.engine.model.EnrollPlayerInfo">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="match_id" jdbcType="INTEGER" property="matchId"/>
+        <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
+        <result column="type" javaType="com.cj.engine.core.PlayerTypes" property="type"/>
+        <result column="lvl_id" jdbcType="INTEGER" property="levelId"/>
+        <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
+    </resultMap>
+
+    <select id="get" resultMap="result">
+        select * from match_enroll_players where id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.model.EnrollPlayerInfo" keyColumn="id" useGeneratedKeys="true">
+        INSERT into match_enroll_players(match_id,node_id,`type`,lvl_id,properties)
+        values(#{matchId},#{nodeId},#{type},#{levelId},#{properties})
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.model.EnrollPlayerInfo">
+        update match_patterns set match_id=#{matchId},cfg=#{cfg},`type`=#{type},state=#{state},
+        idx=#{index},pid=#{pid},title=#{title},promotions=#{promotions},group_players=#{groupPlayers},
+        post_time=#{postTime},properties=#{properties} where id=#{id}
+    </update>
+</mapper>

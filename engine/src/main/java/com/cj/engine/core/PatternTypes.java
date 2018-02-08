@@ -1,11 +1,12 @@
 package com.cj.engine.core;
 
-import java.io.Serializable;
+import com.cj.engine.model.CodeBaseEnum;
+
 
 /**
  * Created by tang on 2016/3/17.
  */
-public enum PatternTypes implements Serializable {
+public enum PatternTypes implements CodeBaseEnum {
     Single(1),
     Double(2),
     Group(3),
@@ -32,7 +33,8 @@ public enum PatternTypes implements Serializable {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

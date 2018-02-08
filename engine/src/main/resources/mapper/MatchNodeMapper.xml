@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cj.engine.dao.MatchNodeMapper">
+    <resultMap id="result" type="com.cj.engine.model.MatchNodeInfo">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="win_next_id" jdbcType="VARCHAR" property="winNextId"/>
+        <result column="lose_next_id" jdbcType="VARCHAR" property="loseNextId"/>
+        <result column="group_id" jdbcType="VARCHAR" property="groupId"/>
+        <result column="pattern_id" jdbcType="INTEGER" property="patternId"/>
+        <result column="idx" jdbcType="SMALLINT" property="index"/>
+        <result column="player_id" jdbcType="INTEGER" property="playerId"/>
+        <result column="state" javaType="com.cj.engine.core.VsNodeState" property="state"/>
+        <result column="score" jdbcType="INTEGER" property="score"/>
+        <result column="rounds" jdbcType="SMALLINT" property="rounds"/>
+        <result column="is_empty" jdbcType="BOOLEAN" property="isEmpty"/>
+        <result column="pid" jdbcType="VARCHAR" property="pid"/>
+        <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
+    </resultMap>
+
+    <select id="get" resultMap="result">
+        select * from match_nodes where id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.model.MatchNodeInfo">
+        insert into match_nodes(id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,rounds,is_empty,pid,properties)
+        values(#{id},#{winNextId},#{loseNextId},#{groupId},#{patternId},#{index},#{playerId},#{state},#{score},#{rounds},#{isEmpty},#{pid},#{properties})
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.model.MatchNodeInfo">
+        update match_nodes set win_next_id=#{winNextId},lose_next_id=#{loseNextId},group_id=#{groupId},
+        pattern_id=#{patternId},idx=#{index},player_id=#{playerId},state=#{state},score=#{score},rounds=#{rounds},
+        is_empty=#{isEmpty},pid=#{pid},properties=#{properties}
+        where id=#{id}
+    </update>
+</mapper>

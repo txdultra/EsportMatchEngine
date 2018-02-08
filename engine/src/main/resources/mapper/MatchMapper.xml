@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cj.engine.dao.MatchMapper">
+    <resultMap id="result" type="com.cj.engine.model.MatchInfo">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="post_time" jdbcType="TIMESTAMP" property="postTime"/>
+        <result column="state" javaType="com.cj.engine.core.PatternStates" property="state"/>
+        <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
+    </resultMap>
+
+    <select id="get" resultMap="result">
+        select * from matchs where id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.model.MatchInfo" keyColumn="id" useGeneratedKeys="true">
+        insert into matchs(title,post_time,state,properties)
+        values(#{title},#{postTime},#{state},#{properties})
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.model.MatchInfo">
+        update matchs set title=#{title},post_time=#{postTime},state=#{state},properties=#{properties}
+        where id=#{id}
+    </update>
+</mapper>

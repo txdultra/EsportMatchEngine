@@ -1,11 +1,12 @@
 package com.cj.engine.core;
 
-import java.io.Serializable;
+import com.cj.engine.model.CodeBaseEnum;
+
 
 /**
  * Created by tang on 2016/3/22.
  */
-public enum VsNodeState implements Serializable {
+public enum VsNodeState implements CodeBaseEnum {
     UnDefined(0),
     Promoted(1),
     AutoPromoted(2),
@@ -32,7 +33,8 @@ public enum VsNodeState implements Serializable {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

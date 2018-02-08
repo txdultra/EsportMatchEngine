@@ -1,11 +1,13 @@
 package com.cj.engine.core;
 
+import com.cj.engine.model.CodeBaseEnum;
+
 import java.io.Serializable;
 
 /**
  * Created by tang on 2016/3/16.
  */
-public enum  PatternStates  implements Serializable {
+public enum PatternStates implements CodeBaseEnum {
     UnBuildSchedule(1),
     BuildedSchedule(2),
     AssignedPlayers(3),
@@ -31,7 +33,8 @@ public enum  PatternStates  implements Serializable {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

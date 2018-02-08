@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class MatchInfo implements Serializable{
+public class MatchInfo extends PropertyEntity {
     private int id;
     private String title;
     private Date postTime;

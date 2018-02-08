@@ -1,9 +1,11 @@
 package com.cj.engine.core;
 
+import com.cj.engine.model.CodeBaseEnum;
+
 /**
  * Created by tang on 2016/4/5.
  */
-public enum VsStates {
+public enum VsStates implements CodeBaseEnum{
     UnDefined(0),
     UnConfirm(1),
     Confirmed(2);
@@ -26,7 +28,8 @@ public enum VsStates {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

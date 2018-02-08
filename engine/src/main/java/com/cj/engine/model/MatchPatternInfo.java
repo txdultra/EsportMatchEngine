@@ -10,16 +10,16 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class MatchPatternInfo implements Serializable {
+public class MatchPatternInfo extends PropertyEntity {
     private int id;
     private int matchId;
-    private String patternCfg;
-    private PatternTypes patternType;
-    private PatternStates patternState;
+    private String cfg;
+    private PatternTypes type;
+    private PatternStates state = PatternStates.UnBuildSchedule;
     private short index;
     private int pid;
     private String title;
     private int promotions;
     private int groupPlayers;
-    private Date postTime;
+    private Date postTime = new Date();
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cj.engine.dao.MatchGroupMapper">
+    <resultMap id="result" type="com.cj.engine.model.MatchGroupInfo">
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="players" jdbcType="INTEGER" property="players"/>
+        <result column="pattern_id" jdbcType="INTEGER" property="pattern_id"/>
+        <result column="idx" jdbcType="SMALLINT" property="index"/>
+        <result column="winners" jdbcType="SMALLINT" property="winners"/>
+        <result column="rounds" jdbcType="SMALLINT" property="rounds"/>
+        <result column="round_id" jdbcType="VARCHAR" property="roundId"/>
+        <result column="category" jdbcType="SMALLINT" property="category"/>
+        <result column="state" javaType="com.cj.engine.core.VsStates" property="state"/>
+        <result column="post_time" jdbcType="TIMESTAMP" property="postTime"/>
+        <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
+    </resultMap>
+
+    <select id="get" resultMap="result">
+        select * from match_groups where id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.model.MatchGroupInfo">
+        insert into match_groups(id,players,pattern_id,idx,winners,rounds,round_id,category,state,post_time,properties)
+        values(#{id},#{players},#{patternId},#{index},#{winners},#{rounds},#{roundId},#{category},#{state},#{postTime},#{properties})
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.model.MatchGroupInfo">
+        update match_groups set players=#{players},pattern_id=#{patternId},idx=#{index},winners=#{winners},
+        rounds=#{rounds},round_id=#{roundId},category=#{category},state=#{state},post_time=#{postTIme},properties=#{properties}
+        where id=#{id}
+    </update>
+</mapper>

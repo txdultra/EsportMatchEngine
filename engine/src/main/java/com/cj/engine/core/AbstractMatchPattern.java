@@ -14,6 +14,7 @@ import java.util.*;
 public abstract class AbstractMatchPattern {
 //    private AbstractMatchPattern previousPattern = null;
 //    private AbstractMatchPattern nextPattern = null;
+
     private PatternStates state = PatternStates.UnBuildSchedule;
 
     @Autowired
