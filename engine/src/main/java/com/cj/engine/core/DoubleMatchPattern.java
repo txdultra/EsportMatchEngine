@@ -22,7 +22,7 @@ public class DoubleMatchPattern extends SingleMatchPattern {
     }
 
     @Override
-    protected void initExtend()  {
+    protected void initExt()  {
         //装载模型结构
         Collection<MatchRound> rounds = dataProvider.getMatchRounds(cfg.getPatternId(),1);
         for(MatchRound round:rounds) {
@@ -132,11 +132,11 @@ public class DoubleMatchPattern extends SingleMatchPattern {
     }
 
     @Override
-    protected MResult newSchedule(int counts) {
+    protected MResult initSchedule(int counts) {
         if(counts <= 0)
             throw new IllegalArgumentException("参数不能小于等于0");
         //先构建胜者组模型
-        super.newSchedule(counts);
+        super.initSchedule(counts);
         //实现败者组模型
         int maxRound = calculateLoseMaxRounds(counts);
         int maxRGs = calculateLoseRoundGroupQuantities(counts);

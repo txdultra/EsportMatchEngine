@@ -8,8 +8,9 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class SingleMPCfg extends MPCfg {
+public class SinglePatternConfig extends BasePatternConfig {
 
     private boolean hasThrider;
     private boolean hasChampion;
+
 }

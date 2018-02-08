@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class GroupMPCfg extends MPCfg {
+public class GroupPatternConfig extends BasePatternConfig {
 
     private GroupMatchPatternScoringTypes scoringType = GroupMatchPatternScoringTypes.BigSocre;
     private double bWinScore;

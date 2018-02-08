@@ -1,7 +1,7 @@
 package com.cj.engine.service;
 
 
-import com.cj.engine.core.cfg.MPCfg;
+import com.cj.engine.core.cfg.BasePatternConfig;
 
 import java.util.Collection;
 
@@ -9,8 +9,8 @@ import java.util.Collection;
  * Created by tang on 2016/3/15.
  */
 public interface ICommonService {
-    MPCfg getMPCfg(int matchId, int pid);
-    Collection<MPCfg> getMPCfgs(int matchId);
-    void saveMPCfg(MPCfg cfg);
-    void delMPCfg(MPCfg cfg);
+    BasePatternConfig getMPCfg(int matchId, int pid);
+    Collection<BasePatternConfig> getMPCfgs(int matchId);
+    void saveMPCfg(BasePatternConfig cfg);
+    void delMPCfg(BasePatternConfig cfg);
 }

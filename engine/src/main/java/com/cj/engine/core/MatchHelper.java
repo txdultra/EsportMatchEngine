@@ -1,6 +1,7 @@
 package com.cj.engine.core;
 
-import cn.neotv.match.engine.cfg.MPCfg;
+
+import com.cj.engine.core.cfg.BasePatternConfig;
 
 import java.util.UUID;
 
@@ -8,8 +9,8 @@ import java.util.UUID;
  * Created by tang on 2016/3/22.
  */
 public class MatchHelper {
-    public synchronized static AbstractMatchPattern newFactory(MPCfg cfg) {
-        switch (cfg.getPatternType()){
+    public synchronized static AbstractMatchPattern newFactory(BasePatternConfig cfg) {
+        switch (cfg.getType()) {
             case Single:
                 return new SingleMatchPattern(cfg);
             case Double:
@@ -21,8 +22,8 @@ public class MatchHelper {
         }
     }
 
-    public synchronized static String getItemId(PatternTypes pt,PatternItemTypes it) {
-        String uuid = getRandomString().substring(0,10);
+    public synchronized static String getItemId(PatternTypes pt, PatternItemTypes it) {
+        String uuid = getRandomString().substring(0, 10);
         String itName = "";
         switch (it) {
             case Group:
@@ -38,37 +39,38 @@ public class MatchHelper {
                 itName = "x";
                 break;
         }
-        switch (pt){
+        switch (pt) {
             case Single:
-                return "s" +itName+ uuid;
+                return "s" + itName + "-" + uuid;
             case Double:
-                return "d" +itName+ uuid;
+                return "d" + itName + "-" + uuid;
             case Group:
-                return "g" +itName+ uuid;
+                return "g" + itName + "-" + uuid;
             case GSL:
-                return "l" +itName+ uuid;
+                return "l" + itName + "-" + uuid;
             default:
                 return "";
         }
     }
 
     public synchronized static String NewPatternId(PatternTypes pt) {
-        String uuid = getRandomString().substring(0,10);
-        switch (pt){
+        String uuid = getRandomString().substring(0, 10);
+        switch (pt) {
             case Single:
-                return "s" + uuid;
+                return "s-" + uuid;
             case Double:
-                return "d" + uuid;
+                return "d-" + uuid;
             case Group:
-                return "g" + uuid;
+                return "g-" + uuid;
             case GSL:
-                return "l" + uuid;
+                return "l-" + uuid;
+            default:
+                return "";
         }
-        return "";
     }
 
     public synchronized static String getRandomString() {
         String uuid = UUID.randomUUID().toString();
-        return uuid.replaceAll("-","");
+        return uuid.replaceAll("-", "");
     }
 }

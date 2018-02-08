@@ -8,6 +8,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class DoubleMPCfg extends SingleMPCfg {
+public class DoublePatternConfig extends SinglePatternConfig {
 
 }

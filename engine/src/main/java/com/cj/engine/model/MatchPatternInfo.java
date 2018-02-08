@@ -13,7 +13,6 @@ import java.util.Date;
 public class MatchPatternInfo extends PropertyEntity {
     private int id;
     private int matchId;
-    private String cfg;
     private PatternTypes type;
     private PatternStates state = PatternStates.UnBuildSchedule;
     private short index;

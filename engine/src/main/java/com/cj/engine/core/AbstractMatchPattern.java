@@ -1,8 +1,9 @@
 package com.cj.engine.core;
 
-import com.cj.engine.core.cfg.MPCfg;
+import com.cj.engine.core.cfg.BasePatternConfig;
 import com.cj.engine.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -12,8 +13,6 @@ import java.util.*;
  * @author tangxd
  */
 public abstract class AbstractMatchPattern {
-//    private AbstractMatchPattern previousPattern = null;
-//    private AbstractMatchPattern nextPattern = null;
 
     private PatternStates state = PatternStates.UnBuildSchedule;
 
@@ -38,10 +37,29 @@ public abstract class AbstractMatchPattern {
     @Autowired
     private ICommonService commonService;
 
-    protected MPCfg cfg;
-    protected boolean initialized = false;
+    /**
+     * 赛事配置
+     */
+    protected BasePatternConfig cfg;
+
+    /**
+     * 赛程次序
+     */
+    protected int index;
+
+    /**
+     * 是否已初始化
+     */
+    protected boolean initialized;
+    /**
+     * 最大轮次
+     */
     protected int maxRound;
+    /**
+     * 计划参赛人数
+     */
     protected int schedulePlayers;
+
     /**
      * 赛事模型数据
      */
@@ -50,7 +68,7 @@ public abstract class AbstractMatchPattern {
     protected Map<String, VsNode> nodes = new LinkedHashMap<>();
     protected Map<Integer, EnrollPlayer> players = new LinkedHashMap<>();
 
-    public AbstractMatchPattern(MPCfg cfg) {
+    public AbstractMatchPattern(BasePatternConfig cfg) {
         this.cfg = cfg;
     }
 
@@ -59,7 +77,7 @@ public abstract class AbstractMatchPattern {
      */
     public synchronized final void init() {
         //如果已初始化则略过
-        if (this.initialized && cfg.isInitialized()) {
+        if (this.initialized) {
             return;
         }
         //装载模型结构
@@ -84,38 +102,16 @@ public abstract class AbstractMatchPattern {
         this.maxRound = rounds.size();
         this.initialize();
         state = patternService.getState(this.getPatternId());
-        //this.initCacheData();
 
         //加载扩展数据
-        this.initExtend();
-
-        //下一阶段初始化
-//        if(this.getNextPattern() != null) {
-//            this.getNextPattern().init();
-//        }
+        this.initExt();
     }
 
     private synchronized void initialize() {
         this.initialized = true;
-        this.cfg.setInitialized(true);
     }
 
-    protected abstract void initExtend();
-
-//    private void initCacheData() {
-//        if (cache == null) {
-//            return;
-//        }
-//        cache.multiAddMatchRounds(this.getPatternId(), this.rounds.values());
-//        for (MatchRound mr : this.rounds.values()) {
-//            Collection<VsGroup> groups = getVsGroups(mr.getId());
-//            cache.multiAddVsGroups(mr.getId(), groups);
-//            for (VsGroup group : groups) {
-//                Collection<VsNode> nodes = getVsNodes(group.getId());
-//                cache.multiAddVsNodes(group.getId(), nodes);
-//            }
-//        }
-//    }
+    protected abstract void initExt();
 
     /**
      * 最大轮次
@@ -144,15 +140,15 @@ public abstract class AbstractMatchPattern {
     /**
      * 赛事模型配置
      */
-    public MResult setCfg(MPCfg cfg) {
-        if (this.state.value() > PatternStates.UnBuildSchedule.value()) {
+    public MResult setCfg(BasePatternConfig cfg) {
+        if (this.state != PatternStates.UnBuildSchedule) {
             return new MResult("1001", "禁止修改参数");
         }
         this.cfg = cfg;
         return new MResult(MResult.SUCCESS_CODE, "修改成功");
     }
 
-    public MPCfg getCfg() {
+    public BasePatternConfig getCfg() {
         return this.cfg;
     }
 
@@ -184,8 +180,9 @@ public abstract class AbstractMatchPattern {
 //        this.assignStrategy = strategy;
 //    }
 
+    @Transactional(rollbackFor = Exception.class)
     public synchronized MResult buildSchedule(int players) {
-        if (this.state.value() >= PatternStates.BuildedSchedule.value()) {
+        if (this.state.code() >= PatternStates.BuildedSchedule.code()) {
             return new MResult("1102", "当前状态不允许构建赛程");
         }
         this.schedulePlayers = players;
@@ -194,15 +191,12 @@ public abstract class AbstractMatchPattern {
             this.reset();
             return mResult;
         }
-        mResult = this.newSchedule(players);
+        mResult = this.initSchedule(players);
         if (!mResult.getCode().equals(MResult.SUCCESS_CODE)) {
             this.reset();
             return mResult;
         }
         this.state = PatternStates.BuildedSchedule;
-//        if (this.getNextPattern() != null) {
-//            return this.getNextPattern().buildSchedule(this.promotionNextPatternPlayerCounts());
-//        }
         return mResult;
     }
 
@@ -220,10 +214,6 @@ public abstract class AbstractMatchPattern {
         this.state = PatternStates.UnBuildSchedule;
         //回到数据库状态
         this.init();
-        //初始化上一阶段
-//        if(this.getPreviousPattern() != null) {
-//            this.getPreviousPattern().reset();
-//        }
     }
 
     /**
@@ -239,7 +229,7 @@ public abstract class AbstractMatchPattern {
      * @param players 设置的报名人数(实际报名人数=设置人数-种子人数)
      * @return
      */
-    protected abstract MResult newSchedule(int players);
+    protected abstract MResult initSchedule(int players);
 
     /**
      * 获取赛程
@@ -257,53 +247,48 @@ public abstract class AbstractMatchPattern {
     public List<VsGroup> getVsGroups(String roundId) {
         List<VsGroup> groups = new ArrayList<>();
         this.groups.forEach((a, b) -> {
-            if (Objects.equals(b.getRoundId(), roundId))
+            if (Objects.equals(b.getRoundId(), roundId)) {
                 groups.add(b);
+            }
         });
         return groups;
     }
 
     public List<VsGroup> getVsGroups(int round) {
         MatchRound mr = this.getMatchRound(round);
-        if (mr == null)
+        if (mr == null) {
             return new ArrayList<>();
+        }
         return getVsGroups(mr.getId());
     }
 
     public List<VsNode> getVsNodes(String groupId) {
-        //cache调用
         List<VsNode> nodes = new ArrayList<>();
         this.nodes.forEach((a, b) -> {
-            if (b.getGroupId().equals(groupId))
+            if (b.getGroupId().equals(groupId)) {
                 nodes.add(b);
+            }
         });
         return nodes;
     }
 
     public EnrollPlayer getPlayer(int playerId) {
-        AbstractMatchPattern mp = getFirstPattern();
-        return mp.getEnrollPlayer(playerId);
+        if (index == 0) {
+            return getEnrollPlayer(playerId);
+        }
+        return null;
     }
 
     private EnrollPlayer getEnrollPlayer(int playerId) {
         return this.players.get(playerId);
     }
 
-//    protected AbstractMatchPattern getFirstPattern() {
-//        AbstractMatchPattern mp = this;
-//        for (; ; ) {
-//            if (mp.previousPattern != null)
-//                mp = mp.previousPattern;
-//            else
-//                break;
-//        }
-//        return mp;
-//    }
-
-    //装载报名选手
+    /**
+     * 装载报名选手
+     * @param players
+     * @return
+     */
     public MResult loadPlayers(Collection<EnrollPlayer> players) {
-//        if (this.previousPattern != null)
-//            return new MResult("1003", "非第一阶段不能载入选手");
         for (EnrollPlayer p : players) {
             this.players.put(p.getPlayerId(), p);
         }
@@ -311,14 +296,17 @@ public abstract class AbstractMatchPattern {
         return new MResult(MResult.SUCCESS_CODE, "成功");
     }
 
-    //分配选手进入赛程
+    /**
+     * 分配选手进入赛程
+     * @return
+     */
     public MResult assignPlayers() {
-//        if (this.previousPattern != null)
-//            return new MResult("1002", "非第一阶段无需分配选手");
         Collection<EnrollPlayer> players = this.players.values();
         MResult result = this.assignStrategy.assign(this, players);
         if (result.getCode().equals(MResult.SUCCESS_CODE)) {
-            dataProvider.batchSaveEnrollPlayerStartNode(players);
+            for (EnrollPlayer p : players) {
+                enrollPlayerService.savePlayerFirstNode(p.getPlayerId(), p.getFirstNodeId());
+            }
             this.assignedPlayersEvent();
             this.state = PatternStates.AssignedPlayers;
         }
@@ -334,8 +322,9 @@ public abstract class AbstractMatchPattern {
      * 构建对阵数据
      */
     public boolean establishVs() {
-        if (this.state != PatternStates.AssignedPlayers)
+        if (this.state != PatternStates.AssignedPlayers) {
             return false;
+        }
         initEstablishVs();
         this.state = PatternStates.EstablishedVs;
         return true;
@@ -350,7 +339,7 @@ public abstract class AbstractMatchPattern {
         if (this.players.size() == 0) {
             return;
         }
-        //保持模型
+        //保存模型
         for (MatchRound mr : this.rounds.values()) {
             if (mr.isModified()) {
                 matchRoundService.save(mr);
@@ -374,6 +363,7 @@ public abstract class AbstractMatchPattern {
 
     /**
      * 轮次的晋级选手
+     *
      * @param round
      * @return
      */
@@ -381,6 +371,7 @@ public abstract class AbstractMatchPattern {
 
     /**
      * 处理结果
+     *
      * @param vs
      * @return
      */
@@ -404,6 +395,7 @@ public abstract class AbstractMatchPattern {
 
     /**
      * 下一个选手
+     *
      * @param playerId
      * @return
      */
@@ -411,6 +403,7 @@ public abstract class AbstractMatchPattern {
 
     /**
      * 某论对阵列表
+     *
      * @param round
      * @param otherArgs
      * @return
@@ -433,25 +426,30 @@ public abstract class AbstractMatchPattern {
                     playerFirstNode = node;
                 }
             }
-            if (playerFirstNode != null)
+            if (playerFirstNode != null) {
                 break;
+            }
         }
         return playerNextNode(playerFirstNode);
     }
 
     private VsNode playerNextNode(VsNode node) {
-        if (node == null)
+        if (node == null) {
             return null;
-        if (node.getPlayerId() == 0)
+        }
+        if (node.getPlayerId() == 0) {
             return null;
+        }
         VsNode nextNode = this.nodes.get(node.getWinNextId());
-        if (nextNode.getPlayerId() == 0)
+        if (nextNode.getPlayerId() == 0) {
             return node;
+        }
         return playerNextNode(nextNode);
     }
 
     /**
      * 位置互换
+     *
      * @param n1key
      * @param n2key
      * @return
@@ -470,13 +468,6 @@ public abstract class AbstractMatchPattern {
         vs2.modify();
         return new MResult(MResult.SUCCESS_CODE, "交换成功");
     }
-
-//    @Override
-//    public int promotionNextPatternPlayerCounts() {
-//        if(this.schedulePlayers <= this.cfg.getPromotionCounts())
-//            return this.schedulePlayers;
-//        return this.cfg.getPromotionCounts();
-//    }
 
     ///////////////////////////////////////////////////////////////////////
     //help method
@@ -497,8 +488,9 @@ public abstract class AbstractMatchPattern {
             node.modify();
             this.nodes.put(node.getId(), node);
         }
-        if (cache)
+        if (cache) {
             this.groups.put(group.getId(), group);
+        }
         return group;
     }
 
@@ -506,8 +498,9 @@ public abstract class AbstractMatchPattern {
         int i = 1;
         while (i != 0) {
             i = i << 1;
-            if (i >= c)
+            if (i >= c) {
                 break;
+            }
         }
         return i == c;
     }

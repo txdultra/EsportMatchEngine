@@ -28,7 +28,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
     }
 
     @Override
-    protected void initExtend()  {
+    protected void initExt()  {
         //装载对阵结构
         MatchRound mr = this.getMatchRound(1);
         if(mr != null) {
@@ -69,7 +69,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
     }
 
     @Override
-    protected MResult newSchedule(int counts) {
+    protected MResult initSchedule(int counts) {
         int gcs = 0;
         if (counts % this.cfg.getGroupPlayerCount() == 0) {
             gcs = counts / this.cfg.getGroupPlayerCount();
