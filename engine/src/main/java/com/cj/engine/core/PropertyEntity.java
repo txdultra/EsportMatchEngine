@@ -1,4 +1,4 @@
-package com.cj.engine.model;
+package com.cj.engine.core;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;

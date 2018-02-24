@@ -9,8 +9,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MatchRound extends ModelBase{
+
+    public MatchRound() {
+        this.modify();
+    }
+
     private String id;
-    private String patternId;
+    private int patternId;
     private int round;
     private int matchId;
     private int category;

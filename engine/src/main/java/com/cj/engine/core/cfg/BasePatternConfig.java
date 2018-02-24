@@ -6,18 +6,18 @@ import com.cj.engine.core.VerdictTypes;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.AbstractMap;
+import java.util.HashMap;
+
 /**
  * Created by tang on 2016/3/15.
  */
 @Getter
 @Setter
-public abstract class BasePatternConfig extends AbstractMap<String,Object> {
-    private int id;
+public abstract class BasePatternConfig extends HashMap<String,Object> {
+    private int patternId;
     private int pid;
     private PatternTypes type;
     private int matchId;
-    private String patternId;
     private int index;
     /**
      * 设置晋级人数

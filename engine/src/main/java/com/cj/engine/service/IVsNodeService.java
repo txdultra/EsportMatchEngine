@@ -8,7 +8,11 @@ import java.util.Collection;
  * 赛事节点接口
  */
 public interface IVsNodeService {
-    Collection<VsNode> getNodes(String patternId);
-    void save(VsNode node);
+    VsNode get(String id);
 
+    Collection<VsNode> getNodes(int patternId);
+
+    boolean save(VsNode node);
+
+    void batchSave(Collection<VsNode> nodes);
 }

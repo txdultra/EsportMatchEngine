@@ -1,16 +1,33 @@
 package com.cj.engine.core.cfg;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Created by tang on 2016/4/18.
  */
-@Setter
-@Getter
 public class SinglePatternConfig extends BasePatternConfig {
 
-    private boolean hasThrider;
-    private boolean hasChampion;
+    private static final String HAS_CHAMPION_KEY = "HasChampion";
+    private static final String HAS_THRIDER_KEY = "HasThrider";
+
+    public boolean hasChampion() {
+        if (containsKey(HAS_CHAMPION_KEY)) {
+            return (Boolean) get(HAS_CHAMPION_KEY);
+        }
+        return false;
+    }
+
+    public void setHasChampion(boolean yesOrNo) {
+        put(HAS_CHAMPION_KEY, yesOrNo);
+    }
+
+    public boolean hasThrider() {
+        if (containsKey(HAS_THRIDER_KEY)) {
+            return (Boolean) get(HAS_THRIDER_KEY);
+        }
+        return false;
+    }
+
+    public void setHasThrider(boolean yesOrNo) {
+        put(HAS_THRIDER_KEY, yesOrNo);
+    }
 
 }

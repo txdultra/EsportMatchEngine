@@ -2,10 +2,10 @@ package com.cj.engine.model;
 
 import com.cj.engine.core.PatternStates;
 import com.cj.engine.core.PatternTypes;
+import com.cj.engine.core.PropertyEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Date;
 
 @Getter

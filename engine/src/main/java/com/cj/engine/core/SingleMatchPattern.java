@@ -1,6 +1,7 @@
 package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
+import com.cj.engine.core.cfg.SinglePatternConfig;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,39 +14,35 @@ import java.util.stream.Collectors;
 public class SingleMatchPattern extends AbstractMatchPattern {
     private boolean hasThrider;
     private boolean hasChampion;
-    private static final int PROMOTION_PLAYER_COUNTS = 2;
-    public static final String HAS_CHAMPION_KEY = "hasChampion";
-    public static final String HAS_THRIDER_KEY = "hasThrider";
+    static final int GROUP_PLAYER_COUNTS = 2;
 
     @Override
     protected void initExt() {
     }
 
-    public SingleMatchPattern(BasePatternConfig cfg) {
-        super(cfg);
+    public SingleMatchPattern(BasePatternConfig cfg, IDataService dataService) {
+        super(cfg, dataService);
         this.initSetting();
     }
 
     private void initSetting() {
-        if (cfg.getPromotions() != PROMOTION_PLAYER_COUNTS) {
+        if (getCfg().getGroupPlayerNumber() != GROUP_PLAYER_COUNTS) {
             throw new IllegalArgumentException("单淘赛制只支持小组人数为2");
         }
-        if (cfg.get(HAS_CHAMPION_KEY) != null) {
-            this.hasChampion = (Boolean) cfg.get(HAS_CHAMPION_KEY);
-        }
-        if (cfg.get(HAS_THRIDER_KEY) != null) {
-            this.hasThrider = (Boolean) cfg.get(HAS_THRIDER_KEY);
-        }
+        SinglePatternConfig patternCfg = (SinglePatternConfig) getCfg();
+        this.hasChampion = patternCfg.hasChampion();
+        this.hasThrider = patternCfg.hasThrider();
+
         if (!this.hasChampion && this.hasThrider) {
             throw new IllegalArgumentException("需要决出第三名时必须决出冠军,参数has_champion");
         }
-        if (!this.hasChampion && cfg.getPromotions() <= 0) {
+        if (!this.hasChampion && getCfg().getPromotions() <= 0) {
             throw new IllegalArgumentException("不决出冠军时必须设置晋级人数");
         }
     }
 
     protected int calculateRoundGroupQuantities(int counts) {
-        int uppers = this.cfg.getGroupPlayerNumber();
+        int uppers = this.getCfg().getGroupPlayerNumber();
         while (counts > uppers) {
             uppers = uppers << 1;
         }
@@ -58,7 +55,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         while (maxRGs > 1) {
             //到达此轮已完成本赛制晋级人员数量
             if (!this.hasChampion) {
-                if (this.cfg.getPromotions() >= maxRGs * this.cfg.getGroupPlayerNumber()) {
+                if (this.getCfg().getPromotions() >= maxRGs * this.getCfg().getGroupPlayerNumber()) {
                     break;
                 }
             }
@@ -101,49 +98,51 @@ public class SingleMatchPattern extends AbstractMatchPattern {
     private void setGroupNodeWinRel(String groupId, VsNode nextNode, boolean setWin) {
         Collection<VsNode> nodes = this.getVsNodes(groupId);
         for (VsNode node : nodes) {
-            if (setWin)
+            if (setWin) {
                 node.setWinNextId(nextNode.getId());
-            else
+            } else {
                 node.setLoseNextId(nextNode.getId());
+            }
             node.modify();
         }
     }
 
     @Override
     public MResult verifyNewPattern() {
-        if (this.schedulePlayers < 4)
+        if (this.schedulePlayers < 4) {
             return new MResult("2001", "单赛程人数不能小于4");
+        }
         return new MResult(MResult.SUCCESS_CODE, "允许");
     }
 
     @Override
     protected MResult initSchedule(int players) {
-        if (players <= 0)
+        if (players <= 0) {
             throw new IllegalArgumentException("参数不能小于等于0");
+        }
         int maxRound = calculateMaxRounds(players);
         int maxRGs = calculateRoundGroupQuantities(players);
         int i = 1;
         while (maxRound >= i) {
             MatchRound mr = new MatchRound();
             mr.setRound(i);
-            mr.setId(MatchHelper.getItemId(this.cfg.getPatternType(), PatternItemTypes.Round));
-            mr.setMatchId(this.cfg.getMatchId());
+            mr.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Round));
+            mr.setMatchId(this.getCfg().getMatchId());
             mr.setPatternId(this.getPatternId());
             mr.setGroupCounts(maxRGs);
-            mr.modify();
             for (int j = 0; j < maxRGs; j++) {
-                VsGroup group = newVsGroup(i, j, mr.getId(), this.cfg.getGroupPlayerCount(), true);
+                VsGroup group = newVsGroup(i, j, mr.getId(), this.getCfg().getGroupPlayerNumber(), true);
                 group.setPatternId(this.getPatternId());
             }
             //最后一轮
-            if (maxRound == i && this.hasThrid) {
-                VsGroup group = newVsGroup(i, 0, mr.getId(), this.cfg.getGroupPlayerCount(), true);
+            if (maxRound == i && this.hasThrider) {
+                VsGroup group = newVsGroup(i, 0, mr.getId(), this.getCfg().getGroupPlayerNumber(), true);
                 group.setPatternId(this.getPatternId());
             }
             //加入到模型数据中
             this.rounds.put(mr.getId(), mr);
             //计算下一轮小组数
-            maxRGs = maxRGs / this.cfg.getGroupPlayerCount();
+            maxRGs = maxRGs / this.getCfg().getGroupPlayerNumber();
             i++;
         }
         this.setNodesRel();
@@ -168,8 +167,9 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             List<VsNode> nodes = this.getVsNodes(group.getId());
             int idx = -1;
             for (VsNode n : nodes) {
-                if (n.getPlayerId() == 0)
+                if (n.getPlayerId() == 0) {
                     idx = n.getIndex();
+                }
             }
             if (idx >= 0) {
                 VsNode lNode = nodes.get(idx);
@@ -183,14 +183,14 @@ public class SingleMatchPattern extends AbstractMatchPattern {
                 cNode.setState(VsNodeState.AutoPromoted);
                 cNode.modify();
                 //轮空
-                lNode.setBye(true);
+                lNode.setEmpty(true);
                 lNode.setState(VsNodeState.UnPromoted);
                 lNode.modify();
                 //组状态
                 group.setState(VsStates.Confirmed);
                 group.modify();
                 //进入下一阶段方法
-                this.gotoNextPattern(cNode.getPlayerId());
+                //this.gotoNextPattern(cNode.getPlayerId());
             }
         }
     }
@@ -217,7 +217,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             vs.setRightNodeId(n2.getId());
             vs.setGroupId(groupId);
             vs.setState(VsStates.UnDefined);
-            this.dataProvider.saveMatchVs(vs, this.cfg.getMatchId(), n1.getRound());
+            dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), n1.getRound());
         }
     }
 
@@ -225,21 +225,23 @@ public class SingleMatchPattern extends AbstractMatchPattern {
     protected MResult unConfirmVs(MatchVs vs) {
         VsNode n1 = this.nodes.get(vs.getWinnerNodeId());
         VsNode n2 = this.nodes.get(vs.getLeftNodeId());
-        if (n1 == null || n2 == null)
+        if (n1 == null || n2 == null) {
             return new MResult("1102", "已到最后节点");
+        }
         n1.setScore(vs.getWinnerScore());
         n2.setScore(vs.getLoserScore());
         n1.modify();
         n2.modify();
-        this.dataProvider.saveMatchVs(vs, this.cfg.getMatchId(), n1.getRound());
+        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), n1.getRound());
         return new MResult(MResult.SUCCESS_CODE, "成功更新");
     }
 
     @Override
     protected MResult confirmedVs(MatchVs vs) {
         VsNode node = this.nodes.get(vs.getWinnerNodeId());
-        if (node == null)
+        if (node == null) {
             return new MResult("1102", "节点不存在");
+        }
         node.setScore(vs.getWinnerScore());
         node.setState(VsNodeState.Promoted);
         node.modify();
@@ -262,9 +264,9 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             //生成下一轮对阵
             this.buildVs(nextNode.getGroupId());
         }
-        this.dataProvider.saveMatchVs(vs, this.cfg.getMatchId(), node.getRound());
+        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), node.getRound());
         //进入下一阶段
-        this.gotoNextPattern(node.getPlayerId());
+        //this.gotoNextPattern(node.getPlayerId());
 
         return new MResult(MResult.SUCCESS_CODE, "成功更新");
     }
@@ -272,11 +274,13 @@ public class SingleMatchPattern extends AbstractMatchPattern {
     @Override
     public EnrollPlayer nextVsPlayer(int playerId) {
         VsNode endNode = playerLastNode(playerId);
-        if (endNode == null)
+        if (endNode == null) {
             return null;
+        }
         for (VsNode n : this.getVsNodes(endNode.getGroupId())) {
-            if (!n.getId().equals(endNode.getId()))
+            if (!n.getId().equals(endNode.getId())) {
                 return this.getPlayer(n.getPlayerId());
+            }
         }
         return null;
     }
@@ -318,7 +322,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         int round = 1;
         while (round <= this.maxRound) {
             Collection<VsGroup> groups = this.getVsGroups(round);
-            if (groups.size() * this.cfg.getGroupPlayerCount() <= this.cfg.getPromotionCounts()) {
+            if (groups.size() * this.getCfg().getGroupPlayerNumber() <= this.getCfg().getPromotions()) {
                 for (VsGroup group : groups) {
                     Collection<VsNode> nodes = this.getVsNodes(group.getId());
                     nodes.forEach(a -> set.add(a.getId()));
@@ -330,19 +334,19 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         return set;
     }
 
-    /**
-     * 计算进入下一阶段
-     *
-     * @param playerId
-     */
-    @Override
-    public void gotoNextPattern(int playerId) {
-        if (this.getNextPattern() != null) {
-            VsNode lastNode = this.playerLastNode(playerId);
-            if (lastNode == null) return;
-            HashSet<String> pnIds = getPromotionNodeIds();
-            if (pnIds.contains(lastNode.getId()))
-                this.getNextPattern().receivePrevPattern(lastNode);
-        }
-    }
+//    /**
+//     * 计算进入下一阶段
+//     *
+//     * @param playerId
+//     */
+//    @Override
+//    public void gotoNextPattern(int playerId) {
+//        if (this.getNextPattern() != null) {
+//            VsNode lastNode = this.playerLastNode(playerId);
+//            if (lastNode == null) return;
+//            HashSet<String> pnIds = getPromotionNodeIds();
+//            if (pnIds.contains(lastNode.getPatternId()))
+//                this.getNextPattern().receivePrevPattern(lastNode);
+//        }
+//    }
 }

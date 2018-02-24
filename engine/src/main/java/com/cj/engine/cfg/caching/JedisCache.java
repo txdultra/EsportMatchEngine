@@ -4,8 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisPool;
 
 import java.util.*;
 
@@ -16,10 +20,11 @@ import java.util.*;
  */
 @Slf4j
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class JedisCache implements Cache {
 
     @Autowired
-    private JedisCluster jedisCluster;
+    private JedisPool jedisCluster;
 
     @Autowired
     private CacheObjectSerializer serializer;
@@ -27,8 +32,8 @@ public class JedisCache implements Cache {
     @Override
     public <T> T get(String key, Class<T> valueType) {
         String str;
-        try {
-            str = jedisCluster.get(key);
+        try (Jedis jedis = jedisCluster.getResource()) {
+            str = jedis.get(key);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -43,8 +48,8 @@ public class JedisCache implements Cache {
     public <T> List<T> getList(String key, Class<T> valueType) {
         String str;
         List<T> list = new ArrayList<>();
-        try {
-            str = jedisCluster.get(key);
+        try (Jedis jedis = jedisCluster.getResource()){
+            str = jedis.get(key);
         } catch (Exception e) {
             e.printStackTrace();
             return list;
@@ -81,8 +86,8 @@ public class JedisCache implements Cache {
             return false;
         }
         String str = serializer.serialize(obj);
-        try {
-            return "OK".equals(jedisCluster.setex(key, Long.valueOf(seconds).intValue(), str));
+        try (Jedis jedis = jedisCluster.getResource()){
+            return "OK".equals(jedis.setex(key, Long.valueOf(seconds).intValue(), str));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,8 +96,8 @@ public class JedisCache implements Cache {
 
     @Override
     public boolean del(String key) {
-        try {
-            return jedisCluster.del(key) == 1;
+        try (Jedis jedis = jedisCluster.getResource()){
+            return jedis.del(key) == 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,9 +107,9 @@ public class JedisCache implements Cache {
     @Override
     public long dels(String[] keys) {
         long c = 0;
-        try {
+        try (Jedis jedis = jedisCluster.getResource()){
             for (String key : keys) {
-                c = c + jedisCluster.del(key);
+                c = c + jedis.del(key);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,9 +120,9 @@ public class JedisCache implements Cache {
     @Override
     public <T> Collection<T> gets(Collection<String> keys, Class<T> valueType) {
         List<String> strs = new ArrayList<>();
-        try {
+        try (Jedis jedis = jedisCluster.getResource()){
             for (String key : keys) {
-                strs.add(jedisCluster.get(key));
+                strs.add(jedis.get(key));
             }
         } catch (Exception e) {
             e.printStackTrace();

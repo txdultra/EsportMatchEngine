@@ -1,6 +1,7 @@
 package com.cj.engine.core;
 
 
+import com.cj.engine.cfg.SpringAppContext;
 import com.cj.engine.core.cfg.BasePatternConfig;
 
 import java.util.UUID;
@@ -10,13 +11,14 @@ import java.util.UUID;
  */
 public class MatchHelper {
     public synchronized static AbstractMatchPattern newFactory(BasePatternConfig cfg) {
+        IDataService dataService = SpringAppContext.getBean(IDataService.class);
         switch (cfg.getType()) {
             case Single:
-                return new SingleMatchPattern(cfg);
+                return new SingleMatchPattern(cfg, dataService);
             case Double:
-                return new DoubleMatchPattern(cfg);
+                return new DoubleMatchPattern(cfg, dataService);
             case Group:
-                return new GroupMatchPattern(cfg);
+                return new GroupMatchPattern(cfg, dataService);
             default:
                 throw new IllegalArgumentException("参数错误");
         }

@@ -14,6 +14,10 @@
         select * from match_enroll_players where id=#{id}
     </select>
 
+    <select id="gets" resultMap="result">
+        select * from match_enroll_players where match_id=#{matchId}
+    </select>
+
     <insert id="insert" parameterType="com.cj.engine.model.EnrollPlayerInfo" keyColumn="id" useGeneratedKeys="true">
         INSERT into match_enroll_players(match_id,node_id,`type`,lvl_id,properties)
         values(#{matchId},#{nodeId},#{type},#{levelId},#{properties})

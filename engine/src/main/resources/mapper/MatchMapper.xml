@@ -13,7 +13,7 @@
         select * from matchs where id=#{id}
     </select>
 
-    <insert id="insert" parameterType="com.cj.engine.model.MatchInfo" keyColumn="id" useGeneratedKeys="true">
+    <insert id="insert" parameterType="com.cj.engine.model.MatchInfo" keyColumn="patternId" useGeneratedKeys="true">
         insert into matchs(title,post_time,state,properties)
         values(#{title},#{postTime},#{state},#{properties})
     </insert>

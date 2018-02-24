@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cj.engine.dao.MatchVsMapper">
-    <resultMap id="result" type="com.cj.engine.model.MatchVsInfo">
+    <resultMap id="result" type="com.cj.engine.core.MatchVs">
         <result column="id" jdbcType="INTEGER" property="id"/>
-        <result column="left_player_id" jdbcType="INTEGER" property="leftPlayerId"/>
-        <result column="right_player_id" jdbcType="INTEGER" property="rightPlayerId"/>
+        <result column="left_player_id" jdbcType="INTEGER" property="leftId"/>
+        <result column="right_player_id" jdbcType="INTEGER" property="rightId"/>
         <result column="left_node_id" jdbcType="VARCHAR" property="leftNodeId"/>
         <result column="right_node_id" jdbcType="VARCHAR" property="rightNodeId"/>
         <result column="left_score" jdbcType="INTEGER" property="leftScore"/>
         <result column="right_score" jdbcType="INTEGER" property="rightScore"/>
-        <result column="winner_player_id" jdbcType="INTEGER" property="winnerPlayerId"/>
+        <result column="winner_player_id" jdbcType="INTEGER" property="winnerId"/>
         <result column="group_id" jdbcType="VARCHAR" property="groupId"/>
         <result column="state" javaType="com.cj.engine.core.VsStates" property="state"/>
         <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
@@ -19,14 +19,18 @@
         select * from match_vs where id=#{id}
     </select>
 
-    <insert id="insert" parameterType="com.cj.engine.model.MatchVsInfo" keyColumn="id" useGeneratedKeys="true">
+    <select id="gets" resultMap="result">
+        select * from match_vs where group_id=#{groupId}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.core.MatchVs" keyColumn="id" useGeneratedKeys="true">
         INSERT into match_vs(left_player_id,right_player_id,left_node_id,right_node_id,left_score,right_score,winner_player_id,group_id,state,properties)
-        values(#{leftPlayerId},#{rightPlayerId},#{leftNodeId},#{rightNodeId},#{leftScore},#{rightScore},#{winnerPlayerId},#{groupId},#{state},#{properties})
+        values(#{leftId},#{rightId},#{leftNodeId},#{rightNodeId},#{leftScore},#{rightScore},#{winnerId},#{groupId},#{state},#{properties})
     </insert>
 
-    <update id="update" parameterType="com.cj.engine.model.MatchVsInfo">
-        update match_vs set left_player_id=#{leftPlayerId},right_player_id=#{rightPlayerId},left_node_id=#{leftNodeId},
-        right_node_id=#{rightNodeId},left_score=#{leftScore},right_score=#{rightScore},winner_player_id=#{winnerPlayerId},
+    <update id="update" parameterType="com.cj.engine.core.MatchVs">
+        update match_vs set left_player_id=#{leftId},right_player_id=#{rightId},left_node_id=#{leftNodeId},
+        right_node_id=#{rightNodeId},left_score=#{leftScore},right_score=#{rightScore},winner_player_id=#{winnerId},
         group_id=#{groupId},state=#{state},properties=#{properties}
         where id=#{id}
     </update>

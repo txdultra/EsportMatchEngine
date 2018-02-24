@@ -25,6 +25,8 @@
                      javaType="com.cj.engine.core.VsNodeState"/>
         <typeHandler handler="com.cj.engine.model.EnumTypeHandler"
                      javaType="com.cj.engine.core.PlayerTypes"/>
+        <typeHandler handler="com.cj.engine.model.EnumTypeHandler"
+                     javaType="com.cj.engine.core.MatchStates"/>
     </typeHandlers>
     <!--<plugins>-->
         <!--<plugin interceptor="com.jhh.pay.center.cfg.tablesplit.TableSplitInterceptor">-->

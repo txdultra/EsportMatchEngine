@@ -9,9 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GroupVsNode extends VsNode{
-    public GroupVsNode(String id) {
-        super(id);
-    }
 
     private int wins;
     private int loses;

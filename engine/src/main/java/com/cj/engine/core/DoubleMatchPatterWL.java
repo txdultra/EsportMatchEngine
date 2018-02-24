@@ -1,11 +1,12 @@
 package com.cj.engine.core;
 
-import java.io.Serializable;
+import com.cj.engine.model.CodeBaseEnum;
+
 
 /**
  * Created by tang on 2016/3/17.
  */
-public enum DoubleMatchPatterWL implements Serializable {
+public enum DoubleMatchPatterWL implements CodeBaseEnum {
     WINGROUP(1),
     LOSEGROUP(2);
 
@@ -25,7 +26,8 @@ public enum DoubleMatchPatterWL implements Serializable {
         }
     }
 
-    public int value() {
+    @Override
+    public int code() {
         return this.value;
     }
 

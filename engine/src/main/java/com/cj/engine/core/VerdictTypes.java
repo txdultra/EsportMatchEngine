@@ -5,9 +5,9 @@ import com.cj.engine.model.CodeBaseEnum;
 import java.io.Serializable;
 
 /**
+ * 裁决模式
  * Created by tang on 2016/3/16.
  */
-//裁决模式
 public enum VerdictTypes implements CodeBaseEnum {
     PLAYER(1),
     VERDICT(2);

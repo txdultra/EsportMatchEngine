@@ -1,11 +1,12 @@
 package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
-import com.cj.engine.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.cj.engine.util.ThreadPoolFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Created by tang on 2016/3/15.
@@ -16,31 +17,14 @@ public abstract class AbstractMatchPattern {
 
     private PatternStates state = PatternStates.UnBuildSchedule;
 
-    @Autowired
-    private IMatchRoundService matchRoundService;
+    protected IDataService dataService;
 
-    @Autowired
-    private IVsGroupService vsGroupService;
-
-    @Autowired
-    private IVsNodeService vsNodeService;
-
-    @Autowired
-    private IEnrollPlayerService enrollPlayerService;
-
-    @Autowired
-    private IPlayerAssignStrategy assignStrategy;
-
-    @Autowired
-    private IPatternService patternService;
-
-    @Autowired
-    private ICommonService commonService;
+    private final static ExecutorService THREAD_POOL = ThreadPoolFactory.newThreadPool("match-save-%d",10,30,3000);
 
     /**
      * 赛事配置
      */
-    protected BasePatternConfig cfg;
+    private BasePatternConfig cfg;
 
     /**
      * 赛程次序
@@ -68,8 +52,9 @@ public abstract class AbstractMatchPattern {
     protected Map<String, VsNode> nodes = new LinkedHashMap<>();
     protected Map<Integer, EnrollPlayer> players = new LinkedHashMap<>();
 
-    public AbstractMatchPattern(BasePatternConfig cfg) {
+    public AbstractMatchPattern(BasePatternConfig cfg, IDataService dataService) {
         this.cfg = cfg;
+        this.dataService = dataService;
     }
 
     /**
@@ -81,27 +66,27 @@ public abstract class AbstractMatchPattern {
             return;
         }
         //装载模型结构
-        Collection<MatchRound> rounds = matchRoundService.getRounds(cfg.getPatternId());
+        Collection<MatchRound> rounds = dataService.getMatchRoundService().getRounds(cfg.getPatternId(), (short) 0);
         for (MatchRound round : rounds) {
             this.rounds.put(round.getId(), round);
         }
-        Collection<VsGroup> groups = vsGroupService.getGroups(cfg.getPatternId());
+        Collection<VsGroup> groups = dataService.getVsGroupService().getGroups(cfg.getPatternId(), (short) 0);
         for (VsGroup group : groups) {
             this.groups.put(group.getId(), group);
         }
-        Collection<VsNode> nodes = vsNodeService.getNodes(cfg.getPatternId());
+        Collection<VsNode> nodes = dataService.getVsNodeService().getNodes(cfg.getPatternId());
         for (VsNode node : nodes) {
             this.nodes.put(node.getId(), node);
         }
         //装载选手
-        Collection<EnrollPlayer> players = enrollPlayerService.getPlayers(cfg.getMatchId());
+        Collection<EnrollPlayer> players = dataService.getEnrollPlayerService().getPlayers(cfg.getMatchId());
         for (EnrollPlayer p : players) {
             this.players.put(p.getPlayerId(), p);
         }
 
         this.maxRound = rounds.size();
         this.initialize();
-        state = patternService.getState(this.getPatternId());
+        state = dataService.getPatternService().getState(this.getPatternId());
 
         //加载扩展数据
         this.initExt();
@@ -152,7 +137,7 @@ public abstract class AbstractMatchPattern {
         return this.cfg;
     }
 
-    public String getPatternId() {
+    public int getPatternId() {
         return this.cfg.getPatternId();
     }
 
@@ -177,7 +162,7 @@ public abstract class AbstractMatchPattern {
 //    }
 //
 //    public void setAssignStrategy(IPlayerAssignStrategy strategy) {
-//        this.assignStrategy = strategy;
+//        this.getAssignStrategy = strategy;
 //    }
 
     @Transactional(rollbackFor = Exception.class)
@@ -285,6 +270,7 @@ public abstract class AbstractMatchPattern {
 
     /**
      * 装载报名选手
+     *
      * @param players
      * @return
      */
@@ -298,14 +284,15 @@ public abstract class AbstractMatchPattern {
 
     /**
      * 分配选手进入赛程
+     *
      * @return
      */
     public MResult assignPlayers() {
         Collection<EnrollPlayer> players = this.players.values();
-        MResult result = this.assignStrategy.assign(this, players);
+        MResult result = dataService.getAssignStrategy().assign(this, players);
         if (result.getCode().equals(MResult.SUCCESS_CODE)) {
             for (EnrollPlayer p : players) {
-                enrollPlayerService.savePlayerFirstNode(p.getPlayerId(), p.getFirstNodeId());
+                dataService.getEnrollPlayerService().savePlayerFirstNode(p.getPlayerId(), p.getFirstNodeId());
             }
             this.assignedPlayersEvent();
             this.state = PatternStates.AssignedPlayers;
@@ -332,33 +319,57 @@ public abstract class AbstractMatchPattern {
 
     protected abstract void initEstablishVs();
 
+    @Transactional(rollbackFor = Exception.class)
     public void save() {
-        //保持参数
-        commonService.saveMPCfg(this.cfg);
         //未确定真实人数时不保存赛程模型
-        if (this.players.size() == 0) {
-            return;
-        }
+//        if (this.players.size() == 0) {
+//            return;
+//        }
         //保存模型
         for (MatchRound mr : this.rounds.values()) {
             if (mr.isModified()) {
-                matchRoundService.save(mr);
+                dataService.getMatchRoundService().save(mr);
             }
         }
+//        List<MatchRound> mrs = new ArrayList<>();
+//        for (MatchRound mr : this.rounds.values()) {
+//            if(mr.isModified()) {
+//                mrs.add(mr);
+//            }
+//        }
+//        dataService.getMatchRoundService().batchSave(mrs);
 
         for (VsGroup group : this.groups.values()) {
             if (group.isModified()) {
-                vsGroupService.save(group);
+                dataService.getVsGroupService().save(group);
             }
         }
+//        List<VsGroup> groups = new ArrayList<>();
+//        for (VsGroup vg : this.groups.values()) {
+//            if(vg.isModified()) {
+//                groups.add(vg);
+//            }
+//        }
+//        dataService.getVsGroupService().batchSave(groups);
 
         for (VsNode node : this.nodes.values()) {
             if (node.isModified()) {
-                vsNodeService.save(node);
+                dataService.getVsNodeService().save(node);
             }
         }
+//        List<VsNode> nodes = new ArrayList<>();
+//        for (VsNode node : this.nodes.values()) {
+//            if(node.isModified()) {
+//                nodes.add(node);
+//            }
+//        }
+//        dataService.getVsNodeService().batchSave(nodes);
+
         //保存模型状态
-        patternService.saveState(this.getPatternId(), state);
+        boolean ok = dataService.getPatternService().saveState(this.getPatternId(), state);
+        if(!ok) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
     }
 
     /**
@@ -474,17 +485,21 @@ public abstract class AbstractMatchPattern {
     ///////////////////////////////////////////////////////////////////////
 
     protected VsGroup newVsGroup(int round, int index, String roundId, int nodes, boolean cache) {
-        VsGroup group = new VsGroup(MatchHelper.getItemId(this.cfg.getType(), PatternItemTypes.Group), nodes);
-        group.setCurrentRound(round);
+        VsGroup group = new VsGroup();
+        group.setId(MatchHelper.getItemId(this.cfg.getType(), PatternItemTypes.Group));
+        group.setGroupPlayerCount(nodes);
+        group.setRound(round);
         group.setIndex(index);
         group.setRoundId(roundId);
         group.setPatternId(this.cfg.getPatternId());
         group.modify();
         for (Integer i = 0; i < nodes; i++) {
-            VsNode node = new VsNode(MatchHelper.getItemId(this.cfg.getType(), PatternItemTypes.Node));
+            VsNode node = new VsNode();
+            node.setId(MatchHelper.getItemId(this.cfg.getType(), PatternItemTypes.Node));
             node.setIndex(i);
             node.setPatternId(this.cfg.getPatternId());
             node.setGroupId(group.getId());
+            node.setRound(round);
             node.modify();
             this.nodes.put(node.getId(), node);
         }
@@ -513,10 +528,10 @@ public abstract class AbstractMatchPattern {
 //    public void receivePrevPattern(VsNode srcNode) {
 //        if(srcNode == null) return;
 //        MatchRound mr = this.getMatchRound(1);
-//        Collection<VsGroup> groups = this.getVsGroups(mr.getId());
+//        Collection<VsGroup> groups = this.getVsGroups(mr.getPatternId());
 //        for(VsGroup group:groups) {
 //            VsNode emptyNode = null;
-//            for(VsNode node:this.getVsNodes(group.getId())){
+//            for(VsNode node:this.getVsNodes(group.getPatternId())){
 //                if(node.getPlayerId() == 0 && !node.isBye()){
 //                    emptyNode = node;
 //                    break;
@@ -525,7 +540,7 @@ public abstract class AbstractMatchPattern {
 //            if(emptyNode != null) {
 //                emptyNode.setInsert(true);
 //                emptyNode.setPlayerId(srcNode.getPlayerId());
-//                emptyNode.setSrcNodeId(srcNode.getId());
+//                emptyNode.setSrcNodeId(srcNode.getPatternId());
 //                emptyNode.modify();
 //            }
 //        }

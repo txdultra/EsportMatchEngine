@@ -1,9 +1,16 @@
 package com.cj.engine.service;
 
 import com.cj.engine.core.PatternStates;
+import com.cj.engine.model.MatchPatternInfo;
+
+import java.util.List;
 
 public interface IPatternService {
-    PatternStates getState(String patternId);
+    PatternStates getState(int patternId);
 
-    void saveState(String patternId, PatternStates state);
+    boolean saveState(int patternId, PatternStates state);
+
+    List<MatchPatternInfo> gets(int matchId);
+
+    MatchPatternInfo get(int id);
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cj.engine.dao.MatchRoundMapper">
-    <resultMap id="result" type="com.cj.engine.model.MatchRoundInfo">
+    <resultMap id="result" type="com.cj.engine.core.MatchRound">
         <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="category" jdbcType="SMALLINT" property="category"/>
         <result column="pattern_id" jdbcType="INTEGER" property="patternId"/>
         <result column="match_id" jdbcType="INTEGER" property="matchId"/>
-        <result column="rounds" jdbcType="SMALLINT" property="rounds"/>
-        <result column="groups" jdbcType="SMALLINT" property="groups"/>
+        <result column="round" jdbcType="SMALLINT" property="round"/>
+        <result column="groups" jdbcType="SMALLINT" property="groupCounts"/>
         <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
     </resultMap>
 
@@ -15,14 +15,26 @@
         select * from match_rounds where id=#{id}
     </select>
 
-    <insert id="insert" parameterType="com.cj.engine.model.MatchRoundInfo">
-        insert into match_rounds(id,category,pattern_id,match_id,rounds,groups,properties)
-        values(#{id},#{category},#{patternId},#{matchId},#{rounds},#{groups},#{properties})
+    <select id="gets" resultMap="result">
+        select * from match_rounds where pattern_id=#{patternId} and category=#{category}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.core.MatchRound">
+        insert into match_rounds(id,category,pattern_id,match_id,round,groups,properties)
+        values(#{id},#{category},#{patternId},#{matchId},#{round},#{groupCounts},#{properties})
     </insert>
 
-    <update id="update" parameterType="com.cj.engine.model.MatchRoundInfo">
-        update match_rounds set category=#{category},pattern_id=#{patternId},match_id=#{matchId},rounds=#{rounds},
-        groups=#{groups},properties=#{properties}
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into match_rounds (id,category,pattern_id,match_id,round,groups,properties)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.category},#{item.patternId},#{item.matchId},#{item.round},#{item.groupCounts},#{item.properties})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.core.MatchRound">
+        update match_rounds set category=#{category},pattern_id=#{patternId},match_id=#{matchId},round=#{round},
+        groups=#{groupCounts},properties=#{properties}
         where id=#{id}
     </update>
 </mapper>

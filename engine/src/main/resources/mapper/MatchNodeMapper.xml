@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cj.engine.dao.MatchNodeMapper">
-    <resultMap id="result" type="com.cj.engine.model.MatchNodeInfo">
+    <resultMap id="result" type="com.cj.engine.core.VsNode">
         <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="win_next_id" jdbcType="VARCHAR" property="winNextId"/>
         <result column="lose_next_id" jdbcType="VARCHAR" property="loseNextId"/>
@@ -11,9 +11,9 @@
         <result column="player_id" jdbcType="INTEGER" property="playerId"/>
         <result column="state" javaType="com.cj.engine.core.VsNodeState" property="state"/>
         <result column="score" jdbcType="INTEGER" property="score"/>
-        <result column="rounds" jdbcType="SMALLINT" property="rounds"/>
-        <result column="is_empty" jdbcType="BOOLEAN" property="isEmpty"/>
-        <result column="pid" jdbcType="VARCHAR" property="pid"/>
+        <result column="round" jdbcType="SMALLINT" property="round"/>
+        <result column="is_empty" jdbcType="BOOLEAN" property="empty"/>
+        <result column="pid" jdbcType="VARCHAR" property="srcNodeId"/>
         <result column="properties" jdbcType="LONGVARCHAR" property="properties"/>
     </resultMap>
 
@@ -21,15 +21,27 @@
         select * from match_nodes where id=#{id}
     </select>
 
-    <insert id="insert" parameterType="com.cj.engine.model.MatchNodeInfo">
-        insert into match_nodes(id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,rounds,is_empty,pid,properties)
-        values(#{id},#{winNextId},#{loseNextId},#{groupId},#{patternId},#{index},#{playerId},#{state},#{score},#{rounds},#{isEmpty},#{pid},#{properties})
+    <select id="gets" resultMap="result">
+        select * from match_nodes where pattern_id=#{patternId}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.core.VsNode">
+        insert into match_nodes(id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,round,is_empty,pid,properties)
+        values(#{id},#{winNextId},#{loseNextId},#{groupId},#{patternId},#{index},#{playerId},#{state},#{score},#{round},#{empty},#{srcNodeId},#{properties})
     </insert>
 
-    <update id="update" parameterType="com.cj.engine.model.MatchNodeInfo">
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into match_nodes (id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,round,is_empty,pid,properties)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id},#{item.winNextId},#{item.loseNextId},#{item.groupId},#{item.patternId},#{item.index},#{item.playerId},#{item.state},#{item.score},#{item.round},#{item.empty},#{item.srcNodeId},#{item.properties})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.core.VsNode">
         update match_nodes set win_next_id=#{winNextId},lose_next_id=#{loseNextId},group_id=#{groupId},
-        pattern_id=#{patternId},idx=#{index},player_id=#{playerId},state=#{state},score=#{score},rounds=#{rounds},
-        is_empty=#{isEmpty},pid=#{pid},properties=#{properties}
+        pattern_id=#{patternId},idx=#{index},player_id=#{playerId},state=#{state},score=#{score},round=#{round},
+        is_empty=#{empty},pid=#{srcNodeId},properties=#{properties}
         where id=#{id}
     </update>
 </mapper>
