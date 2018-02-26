@@ -22,4 +22,8 @@
         update matchs set title=#{title},post_time=#{postTime},state=#{state},properties=#{properties}
         where id=#{id}
     </update>
+
+    <update id="updateState">
+        update matchs set state=#{state} where id=#{id}
+    </update>
 </mapper>

@@ -1,9 +1,9 @@
-package com.cj.engine.service.impl;
+package com.cj.engine.storage.impl;
 
 import com.cj.engine.cfg.caching.Cache;
 import com.cj.engine.core.MatchRound;
 import com.cj.engine.dao.MatchRoundMapper;
-import com.cj.engine.service.IMatchRoundService;
+import com.cj.engine.storage.IMatchRoundStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class MatchRoundServiceImpl implements IMatchRoundService {
+public class MatchRoundStorageImpl implements IMatchRoundStorage {
 
     @Autowired
     private MatchRoundMapper roundMapper;
@@ -22,7 +22,7 @@ public class MatchRoundServiceImpl implements IMatchRoundService {
     private Cache cache;
 
     private String cacheKey(String id) {
-        return String.format("cj-match:round:%s", id);
+        return String.format("cj-match:round_id:entity:%s", id);
     }
 
     @Override
@@ -39,28 +39,36 @@ public class MatchRoundServiceImpl implements IMatchRoundService {
 
     @Override
     public Collection<MatchRound> getRounds(int patternId, short category) {
-
         return roundMapper.gets(patternId, category);
     }
 
     @Override
-    public boolean save(MatchRound round) {
-        if(get(round.getId()) == null) {
-            return roundMapper.insert(round) > 0;
+    public boolean create(MatchRound round) {
+        boolean ok = roundMapper.insert(round) > 0;
+        if (ok) {
+            cache.set(cacheKey(round.getId()), round, TimeUnit.SECONDS.convert(5, TimeUnit.DAYS));
         }
-        long c = roundMapper.update(round);
-        cache.del(cacheKey(round.getId()));
-        return c > 0;
+        return ok;
+    }
+
+    @Override
+    public boolean saveOrUpdate(MatchRound round) {
+        boolean ok = roundMapper.upsert(round) > 0;
+        if (ok) {
+            cache.del(cacheKey(round.getId()));
+        }
+        return ok;
     }
 
     @Override
     public void batchSave(Collection<MatchRound> rounds) {
-        List<MatchRound> mrs = new ArrayList<>();
-        for (MatchRound mr : rounds) {
-            if (mr.isModified()) {
-                mrs.add(mr);
-            }
-        }
-        roundMapper.batchInsert(mrs);
+        roundMapper.batchInsert(rounds);
+    }
+
+    @Override
+    public void delByPatternId(int patternId) {
+        Collection<String> ids = roundMapper.getIdsByPatternId(patternId);
+        cache.dels(ids.stream().map(this::cacheKey).toArray(String[]::new));
+        roundMapper.delByPatternId(patternId);
     }
 }

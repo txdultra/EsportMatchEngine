@@ -1,6 +1,6 @@
 package com.cj.engine.core;
 
-import com.cj.engine.service.IPlayerAssignStrategy;
+import com.cj.engine.storage.IPlayerAssignStrategy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

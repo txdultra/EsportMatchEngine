@@ -1,10 +1,10 @@
-package com.cj.engine.service.impl;
+package com.cj.engine.storage.impl;
 
 import com.cj.engine.cfg.caching.Cache;
 import com.cj.engine.core.PatternStates;
 import com.cj.engine.dao.MatchPatternMapper;
 import com.cj.engine.model.MatchPatternInfo;
-import com.cj.engine.service.IPatternService;
+import com.cj.engine.storage.IPatternStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class PatternServiceImpl implements IPatternService {
+public class PatternStorageImpl implements IPatternStorage {
     @Autowired
     private MatchPatternMapper patternMapper;
 

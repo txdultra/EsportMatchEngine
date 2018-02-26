@@ -19,12 +19,16 @@
         select * from match_rounds where pattern_id=#{patternId} and category=#{category}
     </select>
 
+    <select id="getIdsByPatternId" resultType="java.lang.String">
+        select id from match_rounds where pattern_id=#{patternId}
+    </select>
+
     <insert id="insert" parameterType="com.cj.engine.core.MatchRound">
         insert into match_rounds(id,category,pattern_id,match_id,round,groups,properties)
         values(#{id},#{category},#{patternId},#{matchId},#{round},#{groupCounts},#{properties})
     </insert>
 
-    <insert id="batchInsert" parameterType="java.util.List">
+    <insert id="batchInsert" parameterType="java.util.Collection">
         insert into match_rounds (id,category,pattern_id,match_id,round,groups,properties)
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -32,9 +36,23 @@
         </foreach>
     </insert>
 
+    <insert id="upsert" parameterType="com.cj.engine.core.MatchRound">
+        INSERT INTO match_rounds
+        (id,category,pattern_id,match_id,round,groups,properties)
+        VALUES
+        (#{id},#{category},#{patternId},#{matchId},#{round},#{groupCounts},#{properties})
+        ON DUPLICATE KEY UPDATE
+        id=#{id},category=#{category},pattern_id=#{patternId},match_id=#{matchId},round=#{round},
+        groups=#{groupCounts},properties=#{properties}
+    </insert>
+
     <update id="update" parameterType="com.cj.engine.core.MatchRound">
         update match_rounds set category=#{category},pattern_id=#{patternId},match_id=#{matchId},round=#{round},
         groups=#{groupCounts},properties=#{properties}
         where id=#{id}
     </update>
+
+    <delete id="delByPatternId">
+        delete from match_rounds where pattern_id=#{patternId}
+    </delete>
 </mapper>

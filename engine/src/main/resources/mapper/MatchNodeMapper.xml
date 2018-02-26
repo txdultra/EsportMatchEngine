@@ -25,17 +25,32 @@
         select * from match_nodes where pattern_id=#{patternId}
     </select>
 
+    <select id="getIdsByPatternId" resultType="java.lang.String">
+        select id from match_nodes where pattern_id=#{patternId}
+    </select>
+
     <insert id="insert" parameterType="com.cj.engine.core.VsNode">
         insert into match_nodes(id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,round,is_empty,pid,properties)
         values(#{id},#{winNextId},#{loseNextId},#{groupId},#{patternId},#{index},#{playerId},#{state},#{score},#{round},#{empty},#{srcNodeId},#{properties})
     </insert>
 
-    <insert id="batchInsert" parameterType="java.util.List">
+    <insert id="batchInsert" parameterType="java.util.Collection">
         insert into match_nodes (id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,round,is_empty,pid,properties)
         values
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.id},#{item.winNextId},#{item.loseNextId},#{item.groupId},#{item.patternId},#{item.index},#{item.playerId},#{item.state},#{item.score},#{item.round},#{item.empty},#{item.srcNodeId},#{item.properties})
         </foreach>
+    </insert>
+
+    <insert id="upsert" parameterType="com.cj.engine.core.VsNode">
+        INSERT INTO match_nodes
+        (id,win_next_id,lose_next_id,group_id,pattern_id,idx,player_id,state,score,round,is_empty,pid,properties)
+        VALUES
+        (#{id},#{winNextId},#{loseNextId},#{groupId},#{patternId},#{index},#{playerId},#{state},#{score},#{round},#{empty},#{srcNodeId},#{properties})
+        ON DUPLICATE KEY UPDATE
+        id=#{id},win_next_id=#{winNextId},lose_next_id=#{loseNextId},group_id=#{groupId},
+        pattern_id=#{patternId},idx=#{index},player_id=#{playerId},state=#{state},score=#{score},round=#{round},
+        is_empty=#{empty},pid=#{srcNodeId},properties=#{properties}
     </insert>
 
     <update id="update" parameterType="com.cj.engine.core.VsNode">
@@ -44,4 +59,8 @@
         is_empty=#{empty},pid=#{srcNodeId},properties=#{properties}
         where id=#{id}
     </update>
+
+    <delete id="delByPatternId">
+        delete from match_nodes where pattern_id=#{patternId}
+    </delete>
 </mapper>

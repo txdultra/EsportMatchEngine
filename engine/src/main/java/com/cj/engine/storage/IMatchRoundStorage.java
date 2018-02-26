@@ -1,19 +1,22 @@
-package com.cj.engine.service;
+package com.cj.engine.storage;
 
 import com.cj.engine.core.MatchRound;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 赛事轮次接口
  */
-public interface IMatchRoundService {
+public interface IMatchRoundStorage {
     MatchRound get(String id);
 
     Collection<MatchRound> getRounds(int patternId, short category);
 
-    boolean save(MatchRound round);
+    boolean create(MatchRound round);
+
+    boolean saveOrUpdate(MatchRound round);
 
     void batchSave(Collection<MatchRound> rounds);
+
+    void delByPatternId(int patternId);
 }

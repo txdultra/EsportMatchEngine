@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class VsNode extends ModelBase{
+public class VsNode extends BaseModel {
     private String id;
     private String winNextId = "";
     private String loseNextId = "";

@@ -8,11 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class MatchRound extends ModelBase{
-
-    public MatchRound() {
-        this.modify();
-    }
+public class MatchRound extends BaseModel {
 
     private String id;
     private int patternId;

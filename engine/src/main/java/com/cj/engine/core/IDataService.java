@@ -1,21 +1,22 @@
 package com.cj.engine.core;
 
-import com.cj.engine.service.*;
+import com.cj.engine.storage.*;
 
 public interface IDataService {
-     IMatchRoundService getMatchRoundService();
+     IMatchRoundStorage getMatchRoundStorage();
 
-     IVsGroupService getVsGroupService();
+     IVsGroupStorage getVsGroupStorage();
 
-     IVsNodeService getVsNodeService();
+     IVsNodeStorage getVsNodeStorage();
 
-     IMatchVsService getMatchVsService();
+     IMatchVsStorage getMatchVsStorage();
 
-     IEnrollPlayerService getEnrollPlayerService();
+     IEnrollPlayerStorage getEnrollPlayerStorage();
 
      IPlayerAssignStrategy getAssignStrategy();
 
-     IPatternService getPatternService();
+     IPatternStorage getPatternStorage();
 
-//     ICommonService getCommonService();
+     IGroupStageStorage getGroupStageStorage();
+
 }

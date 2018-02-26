@@ -2,12 +2,14 @@ package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
 import com.cj.engine.model.MatchInfo;
-import com.cj.engine.service.IMatchService;
+import com.cj.engine.storage.IMatchStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 
@@ -25,7 +27,7 @@ public class MatchEngine implements IMatchEngine {
     private List<BasePatternConfig> cfgs = new ArrayList<>();
 
     @Autowired
-    private IMatchService matchService;
+    private IMatchStorage matchService;
 
     @Autowired
     private PatternConfigLoader cfgLoader;
@@ -35,6 +37,7 @@ public class MatchEngine implements IMatchEngine {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public synchronized void init() {
         if (this.initialized) {
             return;
@@ -46,6 +49,7 @@ public class MatchEngine implements IMatchEngine {
             log.error(e.getMessage(),e);
             throw e;
         }
+
         this.cfgs = cfgLoader.gets(this.matchId);
         this.initPatterns(cfgs);
         this.initialized = true;
@@ -88,6 +92,17 @@ public class MatchEngine implements IMatchEngine {
             }
         }
         this.cfgs.add(cfg);
+    }
+
+    @Override
+    public void reset() {
+        AbstractMatchPattern fMp = this.startPattern;
+        while (fMp != null) {
+            fMp.reset();
+            fMp = null;
+            //fMp = fMp.getNextPattern();
+        }
+        this.matchService.saveState(this.matchId,MatchStates.UnInitialize);
     }
 
     public synchronized void saveCfgs() {
@@ -151,13 +166,19 @@ public class MatchEngine implements IMatchEngine {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public synchronized void save() {
         AbstractMatchPattern fMp = this.startPattern;
         while (fMp != null) {
-            fMp.save();
+            boolean ok = fMp.save();
+            if(!ok ) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return;
+            }
             fMp = null;
             //fMp = fMp.getNextPattern();
         }
+        this.matchService.saveState(this.matchId,MatchStates.Initialized);
     }
 //
 //    public AbstractMatchPattern getPattern(String patternId) {

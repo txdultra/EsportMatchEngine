@@ -1310,7 +1310,7 @@
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_general_ci</Collation>
     </table>
-    <table id="329" parent="2" name="match_group_tables">
+    <table id="329" parent="2" name="match_group_stages">
       <Engine>InnoDB</Engine>
       <Collation>utf8mb4_general_ci</Collation>
     </table>

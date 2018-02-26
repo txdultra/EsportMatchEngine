@@ -1,25 +1,25 @@
 package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
-import com.cj.engine.util.ThreadPoolFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Created by tang on 2016/3/15.
  *
  * @author tangxd
  */
+@Slf4j
 public abstract class AbstractMatchPattern {
 
     private PatternStates state = PatternStates.UnBuildSchedule;
 
     protected IDataService dataService;
 
-    private final static ExecutorService THREAD_POOL = ThreadPoolFactory.newThreadPool("match-save-%d",10,30,3000);
+//    private final static ExecutorService THREAD_POOL = ThreadPoolFactory.newThreadPool("match-save-%d",10,30,3000);
 
     /**
      * 赛事配置
@@ -45,6 +45,11 @@ public abstract class AbstractMatchPattern {
     protected int schedulePlayers;
 
     /**
+     * 是否是第一次加载
+     */
+    private boolean first;
+
+    /**
      * 赛事模型数据
      */
     protected Map<String, MatchRound> rounds = new LinkedHashMap<>();
@@ -66,34 +71,38 @@ public abstract class AbstractMatchPattern {
             return;
         }
         //装载模型结构
-        Collection<MatchRound> rounds = dataService.getMatchRoundService().getRounds(cfg.getPatternId(), (short) 0);
+        Collection<MatchRound> rounds = dataService.getMatchRoundStorage().getRounds(cfg.getPatternId(), (short) 0);
         for (MatchRound round : rounds) {
             this.rounds.put(round.getId(), round);
         }
-        Collection<VsGroup> groups = dataService.getVsGroupService().getGroups(cfg.getPatternId(), (short) 0);
+        Collection<VsGroup> groups = dataService.getVsGroupStorage().getGroups(cfg.getPatternId(), (short) 0);
         for (VsGroup group : groups) {
             this.groups.put(group.getId(), group);
         }
-        Collection<VsNode> nodes = dataService.getVsNodeService().getNodes(cfg.getPatternId());
+        Collection<VsNode> nodes = dataService.getVsNodeStorage().getNodes(cfg.getPatternId());
         for (VsNode node : nodes) {
             this.nodes.put(node.getId(), node);
         }
         //装载选手
-        Collection<EnrollPlayer> players = dataService.getEnrollPlayerService().getPlayers(cfg.getMatchId());
+        Collection<EnrollPlayer> players = dataService.getEnrollPlayerStorage().getPlayers(cfg.getMatchId());
         for (EnrollPlayer p : players) {
             this.players.put(p.getPlayerId(), p);
         }
 
         this.maxRound = rounds.size();
-        this.initialize();
-        state = dataService.getPatternService().getState(this.getPatternId());
 
+        state = dataService.getPatternStorage().getState(this.getPatternId());
+        this.initialize();
         //加载扩展数据
         this.initExt();
     }
 
     private synchronized void initialize() {
         this.initialized = true;
+        //是否第一次初始化
+        if (this.state == PatternStates.UnBuildSchedule) {
+            this.first = true;
+        }
     }
 
     protected abstract void initExt();
@@ -197,6 +206,16 @@ public abstract class AbstractMatchPattern {
         this.players.clear();
         this.initialized = false;
         this.state = PatternStates.UnBuildSchedule;
+
+        this.dataService.getMatchRoundStorage().delByPatternId(this.getPatternId());
+        this.dataService.getVsGroupStorage().delByPatternId(this.getPatternId());
+        this.dataService.getVsNodeStorage().delByPatternId(this.getPatternId());
+
+        //删除选手对症
+        //...
+
+        this.dataService.getPatternStorage().saveState(this.getPatternId(),PatternStates.UnBuildSchedule);
+
         //回到数据库状态
         this.init();
     }
@@ -292,7 +311,7 @@ public abstract class AbstractMatchPattern {
         MResult result = dataService.getAssignStrategy().assign(this, players);
         if (result.getCode().equals(MResult.SUCCESS_CODE)) {
             for (EnrollPlayer p : players) {
-                dataService.getEnrollPlayerService().savePlayerFirstNode(p.getPlayerId(), p.getFirstNodeId());
+                dataService.getEnrollPlayerStorage().savePlayerFirstNode(p.getPlayerId(), p.getFirstNodeId());
             }
             this.assignedPlayersEvent();
             this.state = PatternStates.AssignedPlayers;
@@ -319,57 +338,75 @@ public abstract class AbstractMatchPattern {
 
     protected abstract void initEstablishVs();
 
-    @Transactional(rollbackFor = Exception.class)
-    public void save() {
+    public boolean save() {
         //未确定真实人数时不保存赛程模型
 //        if (this.players.size() == 0) {
 //            return;
 //        }
-        //保存模型
-        for (MatchRound mr : this.rounds.values()) {
-            if (mr.isModified()) {
-                dataService.getMatchRoundService().save(mr);
-            }
-        }
-//        List<MatchRound> mrs = new ArrayList<>();
-//        for (MatchRound mr : this.rounds.values()) {
-//            if(mr.isModified()) {
-//                mrs.add(mr);
-//            }
-//        }
-//        dataService.getMatchRoundService().batchSave(mrs);
 
-        for (VsGroup group : this.groups.values()) {
-            if (group.isModified()) {
-                dataService.getVsGroupService().save(group);
-            }
+        boolean success;
+        if (!this.first) {
+            success = saveModify();
+        } else {
+            success = saveInit();
         }
-//        List<VsGroup> groups = new ArrayList<>();
-//        for (VsGroup vg : this.groups.values()) {
-//            if(vg.isModified()) {
-//                groups.add(vg);
-//            }
-//        }
-//        dataService.getVsGroupService().batchSave(groups);
-
-        for (VsNode node : this.nodes.values()) {
-            if (node.isModified()) {
-                dataService.getVsNodeService().save(node);
-            }
+        if (!success) {
+            return false;
         }
-//        List<VsNode> nodes = new ArrayList<>();
-//        for (VsNode node : this.nodes.values()) {
-//            if(node.isModified()) {
-//                nodes.add(node);
-//            }
-//        }
-//        dataService.getVsNodeService().batchSave(nodes);
 
         //保存模型状态
-        boolean ok = dataService.getPatternService().saveState(this.getPatternId(), state);
-        if(!ok) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        success = dataService.getPatternStorage().saveState(this.getPatternId(), state);
+        return success;
+    }
+
+    private boolean saveModify() {
+        //保存模型
+        try {
+            for (MatchRound mr : this.rounds.values()) {
+                if (mr.isModified()) {
+                    boolean ok = dataService.getMatchRoundStorage().saveOrUpdate(mr);
+                    if (!ok) {
+                        return false;
+                    }
+                }
+            }
+            for (VsGroup group : this.groups.values()) {
+                if (group.isModified()) {
+                    boolean ok = dataService.getVsGroupStorage().saveOrUpdate(group);
+                    if (!ok) {
+                        return false;
+                    }
+                }
+            }
+            for (VsNode node : this.nodes.values()) {
+                if (node.isModified()) {
+                    boolean ok = dataService.getVsNodeStorage().saveOrUpdate(node);
+                    if (!ok) {
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage(), e);
+            return false;
         }
+        return true;
+    }
+
+    private boolean saveInit() {
+        try {
+            dataService.getMatchRoundStorage().batchSave(this.rounds.values());
+
+            dataService.getVsGroupStorage().batchSave(this.groups.values());
+
+            dataService.getVsNodeStorage().batchSave(this.nodes.values());
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage(), e);
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -15,6 +15,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
     private double smallWinScore;
     private double smallLoseScore;
     private Map<String, Collection<MatchVs>> groupVss = new LinkedHashMap<>();
+    private Map<String, Collection<GroupStageRow>> groupStageRows = new LinkedHashMap<>();
 
     public GroupMatchPatternScoringTypes getScoringType() {
         return this.scoringType;
@@ -36,14 +37,24 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         if (mr != null) {
             Collection<VsGroup> groups = this.getVsGroups(mr.getId());
             for (VsGroup group : groups) {
-                Collection<MatchVs> vss = dataService.getMatchVsService().getVss(group.getId());
+                Collection<MatchVs> vss = dataService.getMatchVsStorage().getVss(group.getId());
                 this.groupVss.put(group.getId(), vss);
             }
         }
     }
 
-    public GroupMatchPattern(BasePatternConfig cfg,IDataService dataService) {
-        super(cfg,dataService);
+    @Override
+    public boolean save() {
+        for (Map.Entry<String, Collection<GroupStageRow>> entry : this.groupStageRows.entrySet()) {
+            for (GroupStageRow row : entry.getValue()) {
+                this.dataService.getGroupStageStorage().saveOrUpdate(row);
+            }
+        }
+        return super.save();
+    }
+
+    public GroupMatchPattern(BasePatternConfig cfg, IDataService dataService) {
+        super(cfg, dataService);
         if (!(getCfg() instanceof GroupPatternConfig)) {
             throw new IllegalArgumentException("小组赛制配置对象类型必须是GroupMPCfg");
         }
@@ -63,6 +74,10 @@ public class GroupMatchPattern extends AbstractMatchPattern {
     @Override
     protected synchronized void reset() {
         this.groupVss.clear();
+        for (Map.Entry<String, Collection<GroupStageRow>> entry : this.groupStageRows.entrySet()) {
+            this.dataService.getGroupStageStorage().delByGroupId(entry.getKey());
+        }
+        this.groupStageRows.clear();
         super.reset();
     }
 
@@ -134,18 +149,33 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         group.setPatternId(this.getCfg().getPatternId());
         group.modify();
         for (int i = 0; i < nodes; i++) {
-            VsNode node = new GroupVsNode();
+            VsNode node = new VsNode();
             node.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Node));
             node.setIndex(i);
             node.setPatternId(this.getCfg().getPatternId());
             node.setGroupId(group.getId());
             node.modify();
             this.nodes.put(node.getId(), node);
+            this.addStageRow(group.getId(), node.getId());
         }
         if (cache) {
             this.groups.put(group.getId(), group);
         }
         return group;
+    }
+
+    private void addStageRow(String groupId, String nodeId) {
+        GroupStageRow row = new GroupStageRow();
+        row.setGroupId(groupId);
+        row.setNodeId(nodeId);
+        if (this.groupStageRows.containsKey(groupId)) {
+            this.groupStageRows.get(groupId).add(row);
+        } else {
+            Collection<GroupStageRow> rows = new ArrayList<>();
+            rows.add(row);
+            this.groupStageRows.put(groupId, rows);
+        }
+        //this.dataService.getGroupStageStorage().save(row);
     }
 
     @Override
@@ -200,7 +230,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
                     vs.setRightNodeId(n2.getId());
                     vs.setGroupId(group.getId());
                     vs.setState(VsStates.UnConfirm);
-                    dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), n1.getRound());
+                    dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), n1.getRound());
                     vss.add(vs);
                 }
             }
@@ -223,7 +253,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
     }
 
     private void sortNodesByScore(List<VsNode> nodes) {
-        Collections.sort(nodes, (n1, n2) -> {
+        nodes.sort((n1, n2) -> {
             if (n1.getScore() > n2.getScore()) {
                 return 1;
             }
@@ -236,23 +266,23 @@ public class GroupMatchPattern extends AbstractMatchPattern {
 
     @Override
     protected MResult unConfirmVs(MatchVs vs) {
-        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), 1);
+        dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), 1);
         return new MResult(MResult.SUCCESS_CODE, "成功更新");
     }
 
     @Override
     protected MResult confirmedVs(MatchVs vs) {
         //vs.setVerdictTime((int) (System.currentTimeMillis() / 1000));
-        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), 1);
+        dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), 1);
 
-        GroupVsNode lNode = (GroupVsNode) this.nodes.get(vs.getLeftNodeId());
-        GroupVsNode wNode = (GroupVsNode) this.nodes.get(vs.getRightNodeId());
-        if (vs.getWinnerNodeId() == lNode.getId()) {
+        GroupStageRow lNode = this.dataService.getGroupStageStorage().get(vs.getLeftNodeId());
+        GroupStageRow wNode = this.dataService.getGroupStageStorage().get(vs.getRightNodeId());
+        if (vs.getWinnerNodeId().equals(lNode.getNodeId())) {
             lNode.addWins(1);
             wNode.addLoses(1);
             setNodeScores(lNode, vs.getWinnerScore(), true);
             setNodeScores(wNode, vs.getLoserScore(), false);
-        } else if (vs.getWinnerNodeId() == wNode.getId()) {
+        } else if (vs.getWinnerNodeId().equals(wNode.getNodeId())) {
             wNode.addWins(1);
             lNode.addLoses(1);
             setNodeScores(lNode, vs.getLoserScore(), false);
@@ -263,7 +293,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         }
         lNode.modify();
         wNode.modify();
-        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), 1);
+        dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), 1);
         this.setGroupPromotion(vs.getGroupId());
         //进入下一阶段
 //        this.gotoNextPattern(lNode.getPlayerId());
@@ -305,7 +335,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         return nodes;
     }
 
-    private void setNodeScores(GroupVsNode node, int score, boolean isWinner) {
+    private void setNodeScores(GroupStageRow node, int score, boolean isWinner) {
         double integral = 0;
         switch (this.scoringType) {
             case SmallScore:
@@ -326,8 +356,8 @@ public class GroupMatchPattern extends AbstractMatchPattern {
             default:
                 break;
         }
-        double oScore = node.getScore();
-        node.setScore(oScore + integral);
+        double oScore = node.getScores();
+        node.setScores(oScore + integral);
     }
 
     @Override

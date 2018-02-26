@@ -26,11 +26,11 @@ public class DoubleMatchPattern extends SingleMatchPattern {
     @Override
     protected void initExt() {
         //装载模型结构
-        Collection<MatchRound> rounds = dataService.getMatchRoundService().getRounds(getCfg().getPatternId(), (short) 1);
+        Collection<MatchRound> rounds = dataService.getMatchRoundStorage().getRounds(getCfg().getPatternId(), (short) 1);
         for (MatchRound round : rounds) {
             this.loseRounds.put(round.getId(), round);
         }
-        Collection<VsGroup> groups = dataService.getVsGroupService().getGroups(getCfg().getPatternId(), (short) 1);
+        Collection<VsGroup> groups = dataService.getVsGroupStorage().getGroups(getCfg().getPatternId(), (short) 1);
         for (VsGroup group : groups) {
             this.loseGroups.put(group.getId(), group);
         }
@@ -53,18 +53,28 @@ public class DoubleMatchPattern extends SingleMatchPattern {
 //    }
 
     @Override
-    public void save() {
-        super.save();
+    public boolean save() {
+        boolean ok = super.save();
+        if(!ok) {
+            return false;
+        }
         for (MatchRound mr : this.loseRounds.values()) {
             if (mr.isModified()) {
-                dataService.getMatchRoundService().save(mr);
+                ok = dataService.getMatchRoundStorage().saveOrUpdate(mr);
+                if(!ok) {
+                    return false;
+                }
             }
         }
         for (VsGroup group : this.loseGroups.values()) {
             if (group.isModified()) {
-                dataService.getVsGroupService().save(group);
+                ok = dataService.getVsGroupStorage().saveOrUpdate(group);
+                if(!ok) {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     @Override
@@ -95,8 +105,9 @@ public class DoubleMatchPattern extends SingleMatchPattern {
 
     private int calculateLoseMaxRounds(int counts) {
         //有败者组人数不能小于4人
-        if (counts < 2)
+        if (counts < 2) {
             return 0;
+        }
         int rounds = 1;
         int maxRGs = calculateLoseRoundGroupQuantities(counts);
         while (maxRGs > 1) {
@@ -126,17 +137,20 @@ public class DoubleMatchPattern extends SingleMatchPattern {
 
     @Override
     public MResult verifyNewPattern() {
-        if (this.schedulePlayers < 4)
+        if (this.schedulePlayers < 4) {
             return new MResult("2001", "双败赛程人数不能小于4");
-        if (this.getCfg().getPromotions() > 0 && !this.is2Pow(this.getCfg().getPromotions()))
+        }
+        if (this.getCfg().getPromotions() > 0 && !this.is2Pow(this.getCfg().getPromotions())) {
             return new MResult("2002", "双败赛程晋级人数必须为2的整数幂");
+        }
         return new MResult(MResult.SUCCESS_CODE, "允许");
     }
 
     @Override
     protected MResult initSchedule(int counts) {
-        if (counts <= 0)
+        if (counts <= 0) {
             throw new IllegalArgumentException("参数不能小于等于0");
+        }
         //先构建胜者组模型
         super.initSchedule(counts);
         //实现败者组模型
@@ -226,7 +240,9 @@ public class DoubleMatchPattern extends SingleMatchPattern {
         for (int i = 2; i <= this.maxRound - 1; i++) {
             MatchRound winMr = this.getMatchRound(i);
             MatchRound loseMr = this.getLoseMatchRound(loseIdx);
-            if (loseMr == null) return;
+            if (loseMr == null) {
+                return;
+            }
             List<VsGroup> winGroups = this.getVsGroups(winMr.getId());
             List<VsGroup> loseGroups = this.getLoseVsGroups(loseMr.getId());
             for (int j = 0; j < winGroups.size(); j++) {
@@ -323,16 +339,18 @@ public class DoubleMatchPattern extends SingleMatchPattern {
     private List<VsGroup> getLoseVsGroups(String roundId) {
         List<VsGroup> groups = new ArrayList<>();
         this.loseGroups.forEach((a, b) -> {
-            if (b.getRoundId().equals(roundId))
+            if (b.getRoundId().equals(roundId)) {
                 groups.add(b);
+            }
         });
         return groups;
     }
 
     private MatchRound getLoseMatchRound(int round) {
         for (MatchRound mr : this.loseRounds.values()) {
-            if (mr.getRound() == round)
+            if (mr.getRound() == round) {
                 return mr;
+            }
         }
         return null;
     }
@@ -398,10 +416,12 @@ public class DoubleMatchPattern extends SingleMatchPattern {
                 } else if (n1.isEmpty() || n2.isEmpty()) {
                     //一个轮空
                     int idx = -1;
-                    if (n1.isEmpty())
+                    if (n1.isEmpty()) {
                         idx = n2.getIndex();
-                    if (n2.isEmpty())
+                    }
+                    if (n2.isEmpty()) {
                         idx = n1.getIndex();
+                    }
                     VsNode n = nodes.get(idx);
                     if (n.getPlayerId() > 0) {
                         VsNode nextNode = this.nodes.get(n.getWinNextId());
@@ -442,15 +462,17 @@ public class DoubleMatchPattern extends SingleMatchPattern {
 
     @Override
     public Collection<MatchVs> getRoundVsList(int round, Map<String, Object> otherArgs) {
-        if (otherArgs == null || !otherArgs.containsKey("is_wingroup"))
+        if (otherArgs == null || !otherArgs.containsKey("is_wingroup")) {
             return new ArrayList<>();
-        boolean isWgroup = (Boolean) otherArgs.get("is_wingroup");
-        if (isWgroup) {
+        }
+        boolean isWGroup = (Boolean) otherArgs.get("is_wingroup");
+        if (isWGroup) {
             return super.getRoundVsList(round, null);
         }
         MatchRound loseMr = this.getLoseMatchRound(round);
-        if (loseMr == null)
+        if (loseMr == null) {
             return new ArrayList<>();
+        }
         Collection<VsGroup> groups = this.getLoseVsGroups(loseMr.getId());
         return loadVsList(groups);
     }
@@ -462,8 +484,8 @@ public class DoubleMatchPattern extends SingleMatchPattern {
     }
 
     @Override
-    protected HashSet<String> getPromotionNodeIds() {
-        HashSet<String> set = new HashSet<>();
+    protected LinkedHashSet<String> getPromotionNodeIds() {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
         int wRound = 1;
         int lRound = -1;
         while (wRound <= this.maxRound) {

@@ -33,7 +33,7 @@ public class GroupPatternConfig extends BasePatternConfig {
      */
     public double getBigWinScore() {
         if (containsKey(BIG_WIN_SCORE_KEY)) {
-            return (Double) get(BIG_WIN_SCORE_KEY);
+            return Double.parseDouble(get(BIG_WIN_SCORE_KEY).toString());
         }
         return 0d;
     }
@@ -48,7 +48,7 @@ public class GroupPatternConfig extends BasePatternConfig {
      */
     public double getBigLoseScore() {
         if (containsKey(BIG_LOSE_SCORE_KEY)) {
-            return (Double) get(BIG_LOSE_SCORE_KEY);
+            return Double.parseDouble(get(BIG_LOSE_SCORE_KEY).toString());
         }
         return 0d;
     }
@@ -63,7 +63,7 @@ public class GroupPatternConfig extends BasePatternConfig {
      */
     public double getSmallWinScore() {
         if (containsKey(SMALL_WIN_SCORE_KEY)) {
-            return (Double) get(SMALL_WIN_SCORE_KEY);
+            return Double.parseDouble(get(SMALL_WIN_SCORE_KEY).toString());
         }
         return 0d;
     }
@@ -78,7 +78,7 @@ public class GroupPatternConfig extends BasePatternConfig {
      */
     public double getSmallLoseScore() {
         if (containsKey(SMALL_LOSE_SCORE_KEY)) {
-            return (Double) get(SMALL_LOSE_SCORE_KEY);
+            return Double.parseDouble(get(SMALL_LOSE_SCORE_KEY).toString());
         }
         return 0d;
     }

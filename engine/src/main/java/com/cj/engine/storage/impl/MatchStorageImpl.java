@@ -1,13 +1,14 @@
-package com.cj.engine.service.impl;
+package com.cj.engine.storage.impl;
 
+import com.cj.engine.core.MatchStates;
 import com.cj.engine.dao.MatchMapper;
 import com.cj.engine.model.MatchInfo;
-import com.cj.engine.service.IMatchService;
+import com.cj.engine.storage.IMatchStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MatchServiceImpl implements IMatchService {
+public class MatchStorageImpl implements IMatchStorage {
 
     @Autowired
     private MatchMapper matchMapper;
@@ -15,5 +16,10 @@ public class MatchServiceImpl implements IMatchService {
     @Override
     public MatchInfo get(int matchId) {
         return matchMapper.get(matchId);
+    }
+
+    @Override
+    public boolean saveState(int matchId, MatchStates state) {
+        return matchMapper.updateState(matchId, state) > 0;
     }
 }

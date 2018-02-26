@@ -22,10 +22,29 @@ public class EngineApplicationTests {
     public void testSingleMatchPattern() {
 
         IMatchEngine engine = SpringAppContext.getBean(IMatchEngine.class, 1);
-
         engine.init();
-        MResult result = engine.buildSchedule(128);
+        MResult result = engine.buildSchedule(64);
         Assert.isTrue(result.getCode() == MResult.SUCCESS_CODE,"success");
         engine.save();
+    }
+
+    @Test
+    public void testDoubleMatchPattern() {
+        IMatchEngine engine = SpringAppContext.getBean(IMatchEngine.class,2);
+        engine.init();
+        MResult result = engine.buildSchedule(64);
+        Assert.isTrue(result.getCode() == MResult.SUCCESS_CODE,"success");
+        engine.save();
+    }
+
+    @Test
+    public void testGroupMatchPattern() {
+        IMatchEngine engine = SpringAppContext.getBean(IMatchEngine.class,3);
+        engine.init();
+        MResult result = engine.buildSchedule(64);
+        Assert.isTrue(result.getCode() == MResult.SUCCESS_CODE,"success");
+        engine.save();
+
+        engine.reset();
     }
 }

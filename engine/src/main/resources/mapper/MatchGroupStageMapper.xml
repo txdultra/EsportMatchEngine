@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cj.engine.dao.MatchGroupStageMapper">
+    <resultMap id="result" type="com.cj.engine.core.GroupStageRow">
+        <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
+        <result column="group_id" jdbcType="VARCHAR" property="groupId" />
+        <result column="wins" jdbcType="SMALLINT" property="wins"/>
+        <result column="loses" jdbcType="SMALLINT" property="loses"/>
+        <result column="pings" jdbcType="SMALLINT" property="pings"/>
+        <result column="scores" jdbcType="SMALLINT" property="scores"/>
+    </resultMap>
+
+    <select id="get" resultMap="result">
+        select * from match_group_stages where id=#{id}
+    </select>
+
+    <select id="getNodeIdsByGroupId" resultType="java.lang.String">
+        select node_id from match_group_stages where group_id=#{groupId}
+    </select>
+
+    <insert id="insert" parameterType="com.cj.engine.core.GroupStageRow">
+        insert into match_group_stages(node_id,group_id,wins,loses,pings,scores)
+        values(#{nodeId},#{groupId},#{wins},#{loses},#{pings},#{scores})
+    </insert>
+
+    <insert id="upsert" parameterType="com.cj.engine.core.GroupStageRow">
+        INSERT INTO match_group_stages
+        (node_id,group_id,wins,loses,pings,scores)
+        VALUES
+        (#{nodeId},#{groupId},#{wins},#{loses},#{pings},#{scores})
+        ON DUPLICATE KEY UPDATE
+        node_id=#{nodeId},group_id=#{groupId},wins=#{wins},loses=#{loses},pings=#{pings},scores=#{scores}
+    </insert>
+
+    <update id="update" parameterType="com.cj.engine.core.GroupStageRow">
+        update match_group_stages set group_id=#{groupId},wins=#{wins},loses=#{loses},pings=#{pings},scores=#{scores} where node_id=#{ndoeId}
+    </update>
+
+    <delete id="delByGroupId">
+        delete from match_group_stages where group_id=#{groupId}
+    </delete>
+</mapper>

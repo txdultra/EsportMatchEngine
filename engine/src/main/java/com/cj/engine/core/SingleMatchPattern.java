@@ -130,6 +130,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             mr.setMatchId(this.getCfg().getMatchId());
             mr.setPatternId(this.getPatternId());
             mr.setGroupCounts(maxRGs);
+            mr.modify();
             for (int j = 0; j < maxRGs; j++) {
                 VsGroup group = newVsGroup(i, j, mr.getId(), this.getCfg().getGroupPlayerNumber(), true);
                 group.setPatternId(this.getPatternId());
@@ -209,15 +210,14 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         VsNode n1 = nodes.get(0);
         VsNode n2 = nodes.get(1);
         if (n1.getPlayerId() > 0 && n2.getPlayerId() > 0) {
-            MatchVs vs = new MatchVs() {
-            };
+            MatchVs vs = new MatchVs();
             vs.setLeftId(n1.getPlayerId());
             vs.setRightId(n2.getPlayerId());
             vs.setLeftNodeId(n1.getId());
             vs.setRightNodeId(n2.getId());
             vs.setGroupId(groupId);
             vs.setState(VsStates.UnDefined);
-            dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), n1.getRound());
+            dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), n1.getRound());
         }
     }
 
@@ -232,7 +232,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         n2.setScore(vs.getLoserScore());
         n1.modify();
         n2.modify();
-        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), n1.getRound());
+        dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), n1.getRound());
         return new MResult(MResult.SUCCESS_CODE, "成功更新");
     }
 
@@ -264,7 +264,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             //生成下一轮对阵
             this.buildVs(nextNode.getGroupId());
         }
-        dataService.getMatchVsService().save(vs, this.getCfg().getMatchId(), node.getRound());
+        dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), node.getRound());
         //进入下一阶段
         //this.gotoNextPattern(node.getPlayerId());
 
@@ -317,8 +317,8 @@ public class SingleMatchPattern extends AbstractMatchPattern {
      *
      * @return
      */
-    protected HashSet<String> getPromotionNodeIds() {
-        HashSet<String> set = new HashSet<>();
+    protected LinkedHashSet<String> getPromotionNodeIds() {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
         int round = 1;
         while (round <= this.maxRound) {
             Collection<VsGroup> groups = this.getVsGroups(round);

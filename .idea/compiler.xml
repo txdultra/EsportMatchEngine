@@ -6,11 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="apply" />
         <module name="engine" />
         <module name="match" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="apply" target="1.8" />
       <module name="engine" target="1.8" />
       <module name="match" target="1.8" />
     </bytecodeTargetLevel>

@@ -26,4 +26,9 @@ public interface IMatchEngine {
      * @param cfg
      */
     void addPattern(BasePatternConfig cfg);
+
+    /**
+     * 重置赛事
+     */
+    void reset();
 }

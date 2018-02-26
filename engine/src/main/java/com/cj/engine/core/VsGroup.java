@@ -10,7 +10,7 @@ import java.util.Date;
  */
 @Setter
 @Getter
-public class VsGroup extends ModelBase {
+public class VsGroup extends BaseModel {
     private String id;
     private int groupPlayerCount;
     private int patternId;

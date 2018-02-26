@@ -5,7 +5,7 @@ import com.cj.engine.core.cfg.DoublePatternConfig;
 import com.cj.engine.core.cfg.GroupPatternConfig;
 import com.cj.engine.core.cfg.SinglePatternConfig;
 import com.cj.engine.model.MatchPatternInfo;
-import com.cj.engine.service.IPatternService;
+import com.cj.engine.storage.IPatternStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.List;
 public class PatternConfigLoaderImpl implements PatternConfigLoader {
 
     @Autowired
-    private IPatternService patternService;
+    private IPatternStorage patternService;
 
     @Override
     public List<BasePatternConfig> gets(int matchId) {

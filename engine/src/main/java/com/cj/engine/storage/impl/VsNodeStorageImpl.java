@@ -1,10 +1,9 @@
-package com.cj.engine.service.impl;
+package com.cj.engine.storage.impl;
 
 import com.cj.engine.cfg.caching.Cache;
 import com.cj.engine.core.VsNode;
 import com.cj.engine.dao.MatchNodeMapper;
-import com.cj.engine.service.IVsNodeService;
-import org.omg.CORBA.PUBLIC_MEMBER;
+import com.cj.engine.storage.IVsNodeStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class VsNodeServiceImpl implements IVsNodeService {
+public class VsNodeStorageImpl implements IVsNodeStorage {
     @Autowired
     private MatchNodeMapper nodeMapper;
 
@@ -41,17 +40,32 @@ public class VsNodeServiceImpl implements IVsNodeService {
     }
 
     @Override
-    public boolean save(VsNode node) {
-        if (get(node.getId()) == null) {
-            return nodeMapper.insert(node) > 0;
+    public boolean create(VsNode node) {
+        boolean ok = nodeMapper.insert(node) > 0;
+        if (ok) {
+            cache.set(cacheKey(node.getId()), node, TimeUnit.SECONDS.convert(5, TimeUnit.DAYS));
         }
-        long c = nodeMapper.update(node);
-        cache.del(cacheKey(node.getId()));
-        return c > 0;
+        return ok;
+    }
+
+    @Override
+    public boolean saveOrUpdate(VsNode node) {
+        boolean ok = nodeMapper.upsert(node) > 0;
+        if (ok) {
+            cache.del(cacheKey(node.getId()));
+        }
+        return ok;
     }
 
     @Override
     public void batchSave(Collection<VsNode> nodes) {
+        nodeMapper.batchInsert(nodes);
+    }
 
+    @Override
+    public void delByPatternId(int patternId) {
+        Collection<String> ids = nodeMapper.getIdsByPatternId(patternId);
+        cache.dels(ids.stream().map(this::cacheKey).toArray(String[]::new));
+        nodeMapper.delByPatternId(patternId);
     }
 }

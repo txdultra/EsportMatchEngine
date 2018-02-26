@@ -23,22 +23,40 @@
         select * from match_groups where pattern_id=#{patternId} and category=#{category}
     </select>
 
+    <select id="getIdsByPatternId" resultType="java.lang.String">
+        select id from match_groups where pattern_id=#{patternId}
+    </select>
+
     <insert id="insert" parameterType="com.cj.engine.core.VsGroup">
         insert into match_groups(id,players,pattern_id,idx,winners,round,round_id,category,state,post_time,properties)
         values(#{id},#{groupPlayerCount},#{patternId},#{index},#{winners},#{round},#{roundId},#{category},#{state},#{postTime},#{properties})
     </insert>
 
-    <insert id="batchInsert" parameterType="java.util.List">
-    insert into match_groups (id,players,pattern_id,idx,winners,round,round_id,category,state,post_time,properties)
-    values
-    <foreach collection="list" item="item" index="index" separator=",">
-        (#{item.id}, #{item.groupPlayerCount},#{item.patternId},#{item.index},#{item.winners},#{item.round},#{item.roundId},#{item.category},#{state},#{postTime},#{item.properties})
-    </foreach>
-</insert>
+    <insert id="batchInsert" parameterType="java.util.Collection">
+        insert into match_groups (id,players,pattern_id,idx,winners,round,round_id,category,state,post_time,properties)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.groupPlayerCount},#{item.patternId},#{item.index},#{item.winners},#{item.round},#{item.roundId},#{item.category},#{item.state},#{item.postTime},#{item.properties})
+        </foreach>
+    </insert>
+
+    <insert id="upsert" parameterType="com.cj.engine.core.VsGroup">
+        INSERT INTO match_groups
+        (id,players,pattern_id,idx,winners,round,round_id,category,state,post_time,properties)
+        VALUES
+        (#{id},#{groupPlayerCount},#{patternId},#{index},#{winners},#{round},#{roundId},#{category},#{state},#{postTime},#{properties})
+        ON DUPLICATE KEY UPDATE
+        id=#{id},players=#{groupPlayerCount},pattern_id=#{patternId},idx=#{index},winners=#{winners},
+        round=#{round},round_id=#{roundId},category=#{category},state=#{state},post_time=#{postTime},properties=#{properties}
+    </insert>
 
     <update id="update" parameterType="com.cj.engine.core.VsGroup">
         update match_groups set players=#{groupPlayerCount},pattern_id=#{patternId},idx=#{index},winners=#{winners},
-        round=#{round},round_id=#{roundId},category=#{category},state=#{state},post_time=#{postTIme},properties=#{properties}
+        round=#{round},round_id=#{roundId},category=#{category},state=#{state},post_time=#{postTime},properties=#{properties}
         where id=#{id}
     </update>
+
+    <delete id="delByPatternId">
+        delete from match_groups where pattern_id=#{patternId}
+    </delete>
 </mapper>
