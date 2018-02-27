@@ -1,6 +1,7 @@
 package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -55,7 +56,7 @@ public abstract class AbstractMatchPattern {
     protected Map<String, MatchRound> rounds = new LinkedHashMap<>();
     protected Map<String, VsGroup> groups = new LinkedHashMap<>();
     protected Map<String, VsNode> nodes = new LinkedHashMap<>();
-    protected Map<Integer, EnrollPlayer> players = new LinkedHashMap<>();
+    protected Map<String, EnrollPlayer> players = new LinkedHashMap<>();
 
     public AbstractMatchPattern(BasePatternConfig cfg, IDataService dataService) {
         this.cfg = cfg;
@@ -214,7 +215,7 @@ public abstract class AbstractMatchPattern {
         //删除选手对症
         //...
 
-        this.dataService.getPatternStorage().saveState(this.getPatternId(),PatternStates.UnBuildSchedule);
+        this.dataService.getPatternStorage().saveState(this.getPatternId(), PatternStates.UnBuildSchedule);
 
         //回到数据库状态
         this.init();
@@ -276,14 +277,14 @@ public abstract class AbstractMatchPattern {
         return nodes;
     }
 
-    public EnrollPlayer getPlayer(int playerId) {
+    public EnrollPlayer getPlayer(String playerId) {
         if (index == 0) {
             return getEnrollPlayer(playerId);
         }
         return null;
     }
 
-    private EnrollPlayer getEnrollPlayer(int playerId) {
+    private EnrollPlayer getEnrollPlayer(String playerId) {
         return this.players.get(playerId);
     }
 
@@ -311,7 +312,7 @@ public abstract class AbstractMatchPattern {
         MResult result = dataService.getAssignStrategy().assign(this, players);
         if (result.getCode().equals(MResult.SUCCESS_CODE)) {
             for (EnrollPlayer p : players) {
-                dataService.getEnrollPlayerStorage().savePlayerFirstNode(p.getPlayerId(), p.getFirstNodeId());
+                dataService.getEnrollPlayerStorage().savePlayerFirstNode(p.getPlayerId(), p.getMatchId(), p.getFirstNodeId());
             }
             this.assignedPlayersEvent();
             this.state = PatternStates.AssignedPlayers;
@@ -447,7 +448,7 @@ public abstract class AbstractMatchPattern {
      * @param playerId
      * @return
      */
-    public abstract EnrollPlayer nextVsPlayer(int playerId);
+    public abstract EnrollPlayer nextVsPlayer(String playerId);
 
     /**
      * 某论对阵列表
@@ -464,13 +465,13 @@ public abstract class AbstractMatchPattern {
      * @param playerId
      * @return
      */
-    protected VsNode playerLastNode(int playerId) {
+    protected VsNode playerLastNode(String playerId) {
         MatchRound firstMr = this.getMatchRound(1);
         Collection<VsGroup> groups = this.getVsGroups(firstMr.getId());
         VsNode playerFirstNode = null;
         for (VsGroup group : groups) {
             for (VsNode node : this.getVsNodes(group.getId())) {
-                if (node.getPlayerId() == playerId) {
+                if (node.getPlayerId().equals(playerId)) {
                     playerFirstNode = node;
                 }
             }
@@ -485,11 +486,11 @@ public abstract class AbstractMatchPattern {
         if (node == null) {
             return null;
         }
-        if (node.getPlayerId() == 0) {
+        if (Strings.isNullOrEmpty(node.getPlayerId())) {
             return null;
         }
         VsNode nextNode = this.nodes.get(node.getWinNextId());
-        if (nextNode.getPlayerId() == 0) {
+        if (Strings.isNullOrEmpty(nextNode.getPlayerId())) {
             return node;
         }
         return playerNextNode(nextNode);
@@ -508,8 +509,8 @@ public abstract class AbstractMatchPattern {
         if (vs1 == null || vs2 == null) {
             return new MResult("1001", "节点不存在");
         }
-        int player1id = vs1.getPlayerId();
-        int player2id = vs2.getPlayerId();
+        String player1id = vs1.getPlayerId();
+        String player2id = vs2.getPlayerId();
         vs1.setPlayerId(player2id);
         vs1.modify();
         vs2.setPlayerId(player1id);

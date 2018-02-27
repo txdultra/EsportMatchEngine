@@ -10,32 +10,32 @@ import lombok.Setter;
 @Setter
 public class MatchVs {
     private int id;
-    private int leftId;
-    private int rightId;
+    private String leftId = "";
+    private String rightId = "";
     private String leftNodeId;
     private String rightNodeId;
     private int leftScore;
     private int rightScore;
-    private int winnerId;
+    private String winnerId= "";
     private String groupId;
     private VsStates state = VsStates.UnConfirm;
 
     public String getWinnerNodeId(){
-        if(winnerId == leftId) {
+        if(winnerId.equals(leftId)) {
             return leftNodeId;
         }
         return rightNodeId;
     }
 
     public int getWinnerScore() {
-        if(this.leftId == winnerId) {
+        if(this.leftId.equals(winnerId)) {
             return leftScore;
         }
         return rightScore;
     }
 
     public int getLoserScore() {
-        if(this.leftId != winnerId) {
+        if(!this.leftId.equals(winnerId)) {
             return leftScore;
         }
         return rightScore;

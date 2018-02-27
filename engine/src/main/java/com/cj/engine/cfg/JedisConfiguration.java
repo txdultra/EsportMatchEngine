@@ -89,7 +89,7 @@ public class JedisConfiguration {
      */
     @Bean
     public CacheErrorHandler errorHandler() {
-        CacheErrorHandler cacheErrorHandler = new CacheErrorHandler() {
+        return new CacheErrorHandler() {
             @Override
             public void handleCacheGetError(RuntimeException e, Cache cache, Object key) {
                 log.error("redis异常：key=[{}]", key, e);
@@ -110,6 +110,5 @@ public class JedisConfiguration {
                 log.error("redis异常：", e);
             }
         };
-        return cacheErrorHandler;
     }
 }

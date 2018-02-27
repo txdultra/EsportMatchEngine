@@ -2,6 +2,7 @@ package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
 import com.cj.engine.core.cfg.SinglePatternConfig;
+import com.google.common.base.Strings;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -168,7 +169,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             List<VsNode> nodes = this.getVsNodes(group.getId());
             int idx = -1;
             for (VsNode n : nodes) {
-                if (n.getPlayerId() == 0) {
+                if (Strings.isNullOrEmpty(n.getPlayerId())) {
                     idx = n.getIndex();
                 }
             }
@@ -209,7 +210,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         List<VsNode> nodes = this.getVsNodes(groupId);
         VsNode n1 = nodes.get(0);
         VsNode n2 = nodes.get(1);
-        if (n1.getPlayerId() > 0 && n2.getPlayerId() > 0) {
+        if (!Strings.isNullOrEmpty(n1.getPlayerId()) && !Strings.isNullOrEmpty(n2.getPlayerId())) {
             MatchVs vs = new MatchVs();
             vs.setLeftId(n1.getPlayerId());
             vs.setRightId(n2.getPlayerId());
@@ -272,7 +273,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
     }
 
     @Override
-    public EnrollPlayer nextVsPlayer(int playerId) {
+    public EnrollPlayer nextVsPlayer(String playerId) {
         VsNode endNode = playerLastNode(playerId);
         if (endNode == null) {
             return null;
@@ -298,8 +299,8 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             EnrollPlayer p1 = this.getPlayer(nodes.get(0).getPlayerId());
             EnrollPlayer p2 = this.getPlayer(nodes.get(1).getPlayerId());
             MatchVs vs = new MatchVs();
-            vs.setLeftId(p1 != null ? p1.getPlayerId() : 0);
-            vs.setRightId(p2 != null ? p2.getPlayerId() : 0);
+            vs.setLeftId(p1 != null ? p1.getPlayerId() : "");
+            vs.setRightId(p2 != null ? p2.getPlayerId() : "");
             vs.setLeftNodeId(nodes.get(0).getId());
             vs.setRightNodeId(nodes.get(1).getId());
             vss.add(vs);

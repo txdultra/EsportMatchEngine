@@ -2,6 +2,7 @@ package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
 import com.cj.engine.core.cfg.DoublePatternConfig;
+import com.google.common.base.Strings;
 
 import java.util.*;
 
@@ -423,7 +424,7 @@ public class DoubleMatchPattern extends SingleMatchPattern {
                         idx = n1.getIndex();
                     }
                     VsNode n = nodes.get(idx);
-                    if (n.getPlayerId() > 0) {
+                    if (!Strings.isNullOrEmpty(n.getPlayerId())) {
                         VsNode nextNode = this.nodes.get(n.getWinNextId());
                         nextNode.setPlayerId(n.getPlayerId());
                         nextNode.modify();
@@ -456,7 +457,7 @@ public class DoubleMatchPattern extends SingleMatchPattern {
     }
 
     @Override
-    public EnrollPlayer nextVsPlayer(int playerId) {
+    public EnrollPlayer nextVsPlayer(String playerId) {
         return super.nextVsPlayer(playerId);
     }
 

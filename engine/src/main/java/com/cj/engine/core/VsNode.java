@@ -16,7 +16,7 @@ public class VsNode extends BaseModel {
     private String groupId;
     private int patternId;
     private int index;
-    private int playerId;
+    private String playerId = "";
     private VsNodeState state =VsNodeState.UnDefined;
     private boolean isInsert;
     private double score;

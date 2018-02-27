@@ -11,7 +11,7 @@ public final class ThreadPoolFactory {
                 .setNameFormat(threadNameFormat).build();
         return new ThreadPoolExecutor(corePoolSize, maxPoolSize,
                 keepAliveTimeMilliseconds, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(1024), threadFactory, new ThreadPoolExecutor.AbortPolicy());
+                new LinkedBlockingQueue<>(1024), threadFactory, new ThreadPoolExecutor.AbortPolicy());
 
     }
 }

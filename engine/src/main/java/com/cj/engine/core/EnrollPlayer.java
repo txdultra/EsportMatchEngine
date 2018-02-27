@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EnrollPlayer extends BaseModel {
-    private int playerId;
+    private String playerId;
     private int matchId;
     private String firstNodeId;
 

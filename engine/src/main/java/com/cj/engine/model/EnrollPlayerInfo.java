@@ -5,12 +5,16 @@ import com.cj.engine.core.PropertyEntity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 public class EnrollPlayerInfo extends PropertyEntity {
-    private int id;
+    private String playerId;
     private int matchId;
     private String nodeId;
     private PlayerTypes type = PlayerTypes.Enroller;
     private int levelId;
+    private Date postTime;
+
 }

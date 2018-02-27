@@ -2,6 +2,7 @@ package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
 import com.cj.engine.core.cfg.GroupPatternConfig;
+import com.google.common.base.Strings;
 
 import java.util.*;
 
@@ -185,7 +186,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
             int count = 0;
             Collection<VsNode> nodes = getVsNodes(group.getId());
             for (VsNode n : nodes) {
-                if (n.getPlayerId() > 0) {
+                if (!Strings.isNullOrEmpty(n.getPlayerId())) {
                     count++;
                 } else {
                     n.setEmpty(true);
@@ -194,7 +195,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
             }
             if (count <= this.getCfg().getPromotions()) {
                 for (VsNode n : nodes) {
-                    if (n.getPlayerId() > 0) {
+                    if (!Strings.isNullOrEmpty(n.getPlayerId())) {
                         n.setState(VsNodeState.AutoPromoted);
                         //进入下一阶段
                         //this.gotoNextPattern(n.getPlayerId());
@@ -220,7 +221,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
                     List<VsNode> nodes = this.getVsNodes(group.getId());
                     VsNode n1 = nodes.get(i);
                     VsNode n2 = nodes.get(j);
-                    if (n1.getPlayerId() == n2.getPlayerId()) {
+                    if (n1.getPlayerId().equals(n2.getPlayerId())) {
                         continue;
                     }
                     MatchVs vs = new MatchVs();
@@ -311,7 +312,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         List<VsNode> rankNodes = this.groupRankNodes(groupId);
         for (int i = 0; i < this.getCfg().getPromotions() && i < rankNodes.size(); i++) {
             VsNode n = rankNodes.get(i);
-            if (n.getPlayerId() > 0) {
+            if (!Strings.isNullOrEmpty(n.getPlayerId())) {
                 n.setState(VsNodeState.Promoted);
                 n.modify();
             }
@@ -361,17 +362,18 @@ public class GroupMatchPattern extends AbstractMatchPattern {
     }
 
     @Override
-    public EnrollPlayer nextVsPlayer(int playerId) {
+    public EnrollPlayer nextVsPlayer(String playerId) {
         VsGroup playerOfGroup = findPlayerInGroup(playerId);
-        if (playerOfGroup == null)
+        if (playerOfGroup == null) {
             return null;
+        }
         Collection<MatchVs> vss = this.groupVss.get(playerOfGroup.getId());
         for (MatchVs vs : vss) {
             if (vs.getState() != VsStates.Confirmed) {
-                if (vs.getLeftId() == playerId) {
+                if (vs.getLeftId().equals(playerId)) {
                     return this.getPlayer(vs.getRightId());
                 }
-                if (vs.getRightId() == playerId) {
+                if (vs.getRightId().equals(playerId)) {
                     return this.getPlayer(vs.getLeftId());
                 }
             }
@@ -379,13 +381,13 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         return null;
     }
 
-    private VsGroup findPlayerInGroup(int playerId) {
+    private VsGroup findPlayerInGroup(String playerId) {
         Collection<VsGroup> groups = this.getVsGroups(1);
         VsGroup playerOfGroup = null;
         for (VsGroup group : groups) {
             Collection<VsNode> nodes = this.getVsNodes(group.getId());
             for (VsNode node : nodes) {
-                if (node.getPlayerId() == playerId) {
+                if (node.getPlayerId().equals(playerId)) {
                     playerOfGroup = group;
                 }
             }
