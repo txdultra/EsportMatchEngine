@@ -5,6 +5,7 @@
         <result column="id" jdbcType="INTEGER" property="id"/>
         <result column="match_id" jdbcType="INTEGER" property="matchId" />
         <result column="type" javaType="com.cj.engine.core.PatternTypes" property="type"/>
+        <result column="bo" jdbcType="SMALLINT" property="boN"/>
         <result column="state" javaType="com.cj.engine.core.PatternStates" property="state"/>
         <result column="idx" jdbcType="SMALLINT" property="index"/>
         <result column="pid" jdbcType="INTEGER" property="pid"/>
@@ -24,12 +25,12 @@
     </select>
 
     <insert id="insert" parameterType="com.cj.engine.model.MatchPatternInfo" keyColumn="id" useGeneratedKeys="true">
-        insert into match_patterns(match_id,`type`,state,idx,pid,title,promotions,group_players,post_time,state,properties)
-        values(#{matchId},#{type},#{state},#{index},#{pid},#{title},#{promotions},#{groupPlayers},#{postTime},#{properties})
+        insert into match_patterns(match_id,`type`,bo,state,idx,pid,title,promotions,group_players,post_time,state,properties)
+        values(#{matchId},#{type},#{boN},#{state},#{index},#{pid},#{title},#{promotions},#{groupPlayers},#{postTime},#{properties})
     </insert>
 
     <update id="update" parameterType="com.cj.engine.model.MatchPatternInfo">
-        update match_patterns set match_id=#{matchId},`type`=#{type},state=#{state},
+        update match_patterns set match_id=#{matchId},`type`=#{type},bo=#{boN},state=#{state},
         idx=#{index},pid=#{pid},title=#{title},promotions=#{promotions},group_players=#{groupPlayers},
         post_time=#{postTime},properties=#{properties} where id=#{id}
     </update>

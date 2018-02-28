@@ -231,6 +231,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
                     vs.setRightNodeId(n2.getId());
                     vs.setGroupId(group.getId());
                     vs.setState(VsStates.UnConfirm);
+                    vs.setMatchId(this.getCfg().getMatchId());
                     dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), n1.getRound());
                     vss.add(vs);
                 }

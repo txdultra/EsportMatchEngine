@@ -218,6 +218,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             vs.setRightNodeId(n2.getId());
             vs.setGroupId(groupId);
             vs.setState(VsStates.UnDefined);
+            vs.setMatchId(this.getCfg().getMatchId());
             dataService.getMatchVsStorage().save(vs, this.getCfg().getMatchId(), n1.getRound());
         }
     }
@@ -303,6 +304,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
             vs.setRightId(p2 != null ? p2.getPlayerId() : "");
             vs.setLeftNodeId(nodes.get(0).getId());
             vs.setRightNodeId(nodes.get(1).getId());
+            vs.setMatchId(this.getCfg().getMatchId());
             vss.add(vs);
         }
         return vss;

@@ -14,6 +14,7 @@ public class MatchPatternInfo extends PropertyEntity {
     private int id;
     private int matchId;
     private PatternTypes type;
+    private short boN;
     private PatternStates state = PatternStates.UnBuildSchedule;
     private short index;
     private int pid;

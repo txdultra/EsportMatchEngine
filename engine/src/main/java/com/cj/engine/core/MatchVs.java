@@ -3,6 +3,8 @@ package com.cj.engine.core;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 /**
  * Created by tang on 2016/3/15.
  */
@@ -18,6 +20,7 @@ public class MatchVs {
     private int rightScore;
     private String winnerId= "";
     private String groupId;
+    private int matchId;
     private VsStates state = VsStates.UnConfirm;
 
     public String getWinnerNodeId(){
