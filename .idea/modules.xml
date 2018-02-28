@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/apply/apply.iml" filepath="$PROJECT_DIR$/apply/apply.iml" />
       <module fileurl="file://$PROJECT_DIR$/engine/engine.iml" filepath="$PROJECT_DIR$/engine/engine.iml" />
-      <module fileurl="file://$PROJECT_DIR$/match.iml" filepath="$PROJECT_DIR$/match.iml" />
+      <module fileurl="file://$PROJECT_DIR$/match_engine.iml" filepath="$PROJECT_DIR$/match_engine.iml" />
     </modules>
   </component>
 </project>

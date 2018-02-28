@@ -9,12 +9,14 @@
         <module name="apply" />
         <module name="engine" />
         <module name="match" />
+        <module name="match_engine" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="apply" target="1.8" />
       <module name="engine" target="1.8" />
       <module name="match" target="1.8" />
+      <module name="match_engine" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

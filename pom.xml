@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.cj</groupId>
-	<artifactId>match</artifactId>
+	<artifactId>match_engine</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>match</name>
+	<name>match engine</name>
 	<description>match engine</description>
 
 	<parent>

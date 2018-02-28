@@ -11,6 +11,7 @@ import java.io.Serializable;
 public enum VerdictTypes implements CodeBaseEnum {
     PLAYER(1),
     VERDICT(2);
+
     private int value = 0;
 
     VerdictTypes(int value) {
