@@ -12,8 +12,8 @@ public class MatchRound extends BaseModel {
 
     private String id;
     private int patternId;
-    private int round;
+    private short round;
     private int matchId;
-    private int category;
+    private short category;
     private int groupCounts;
 }

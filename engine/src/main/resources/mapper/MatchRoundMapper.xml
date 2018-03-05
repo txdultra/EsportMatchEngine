@@ -16,7 +16,7 @@
     </select>
 
     <select id="gets" resultMap="result">
-        select * from match_rounds where pattern_id=#{patternId} and category=#{category}
+        select * from match_rounds where pattern_id=#{patternId}
     </select>
 
     <select id="getIdsByPatternId" resultType="java.lang.String">

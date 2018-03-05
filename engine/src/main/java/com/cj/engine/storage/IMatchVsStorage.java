@@ -8,4 +8,6 @@ public interface IMatchVsStorage {
     void save(MatchVs vs, int matchId, int roundId);
 
     Collection<MatchVs> getVss(String groupId);
+
+    MatchVs get(int id);
 }

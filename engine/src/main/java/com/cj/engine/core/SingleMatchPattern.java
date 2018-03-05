@@ -123,7 +123,7 @@ public class SingleMatchPattern extends AbstractMatchPattern {
         }
         int maxRound = calculateMaxRounds(players);
         int maxRGs = calculateRoundGroupQuantities(players);
-        int i = 1;
+        short i = 1;
         while (maxRound >= i) {
             MatchRound mr = new MatchRound();
             mr.setRound(i);

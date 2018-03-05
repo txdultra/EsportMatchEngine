@@ -14,11 +14,12 @@ public class VsGroup extends BaseModel {
     private String id;
     private int groupPlayerCount;
     private int patternId;
+    private int matchId;
     private int index;
     private short winners;
     private int round;
     private String roundId;
-    private int category;
+    private short category;
     private VsStates state = VsStates.UnDefined;
     private Date postTime = new Date();
 }

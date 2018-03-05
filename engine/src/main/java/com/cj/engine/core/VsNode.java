@@ -15,12 +15,13 @@ public class VsNode extends BaseModel {
     private String loseNextId = "";
     private String groupId;
     private int patternId;
-    private int index;
+    private int matchId;
+    private short index;
     private String playerId = "";
     private VsNodeState state =VsNodeState.UnDefined;
     private boolean isInsert;
-    private double score;
-    private int round;
+    private int score;
+    private short round;
     private boolean empty;
     private String srcNodeId = "";
 }

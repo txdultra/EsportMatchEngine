@@ -11,7 +11,8 @@ public enum PatternStates implements CodeBaseEnum {
     UnBuildSchedule(1),
     BuildedSchedule(2),
     AssignedPlayers(3),
-    EstablishedVs(4);
+    EstablishedVs(4),
+    FINISHED(99);
 
     private int value = 0;
 
@@ -28,6 +29,8 @@ public enum PatternStates implements CodeBaseEnum {
                 return AssignedPlayers;
             case 4:
                 return EstablishedVs;
+            case 99:
+                return FINISHED;
             default:
                 throw new IllegalArgumentException("参数非法");
         }

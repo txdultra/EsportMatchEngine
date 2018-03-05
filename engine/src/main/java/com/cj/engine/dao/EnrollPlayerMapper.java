@@ -1,6 +1,6 @@
 package com.cj.engine.dao;
 
-import com.cj.engine.model.EnrollPlayerInfo;
+import com.cj.engine.core.EnrollPlayer;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -8,7 +8,13 @@ import java.util.Collection;
 
 @Mapper
 public interface EnrollPlayerMapper {
-    Collection<EnrollPlayerInfo> gets(int matchId);
+    Collection<EnrollPlayer> gets(int matchId);
 
-    long updateNode(@Param("playerId") String playerId,@Param("matchId") int matchId,@Param("nodeId") String nodeId);
+    EnrollPlayer get(@Param("playerId") String playerId, @Param("matchId") int matchId);
+
+    long updateNode(@Param("playerId") String playerId, @Param("matchId") int matchId, @Param("nodeId") String nodeId);
+
+    long insert(EnrollPlayer player);
+
+    long update(EnrollPlayer player);
 }

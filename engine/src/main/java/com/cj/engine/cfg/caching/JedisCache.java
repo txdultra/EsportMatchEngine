@@ -48,7 +48,7 @@ public class JedisCache implements Cache {
     public <T> List<T> getList(String key, Class<T> valueType) {
         String str;
         List<T> list = new ArrayList<>();
-        try (Jedis jedis = jedisCluster.getResource()){
+        try (Jedis jedis = jedisCluster.getResource()) {
             str = jedis.get(key);
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +86,7 @@ public class JedisCache implements Cache {
             return false;
         }
         String str = serializer.serialize(obj);
-        try (Jedis jedis = jedisCluster.getResource()){
+        try (Jedis jedis = jedisCluster.getResource()) {
             return "OK".equals(jedis.setex(key, Long.valueOf(seconds).intValue(), str));
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,7 +96,7 @@ public class JedisCache implements Cache {
 
     @Override
     public boolean del(String key) {
-        try (Jedis jedis = jedisCluster.getResource()){
+        try (Jedis jedis = jedisCluster.getResource()) {
             return jedis.del(key) == 1;
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,7 +107,7 @@ public class JedisCache implements Cache {
     @Override
     public long dels(String[] keys) {
         long c = 0;
-        try (Jedis jedis = jedisCluster.getResource()){
+        try (Jedis jedis = jedisCluster.getResource()) {
             for (String key : keys) {
                 c = c + jedis.del(key);
             }
@@ -120,7 +120,7 @@ public class JedisCache implements Cache {
     @Override
     public <T> Collection<T> gets(Collection<String> keys, Class<T> valueType) {
         List<String> strs = new ArrayList<>();
-        try (Jedis jedis = jedisCluster.getResource()){
+        try (Jedis jedis = jedisCluster.getResource()) {
             for (String key : keys) {
                 strs.add(jedis.get(key));
             }
@@ -136,5 +136,73 @@ public class JedisCache implements Cache {
             list.add(obj);
         }
         return list;
+    }
+
+    @Override
+    public <T> T hget(String key, String fieldKey, Class<T> valueType) {
+        try (Jedis jedis = jedisCluster.getResource()) {
+            String str = jedis.hget(key, fieldKey);
+            if (!Strings.isNullOrEmpty(str)) {
+                return serializer.deserialize(str, valueType);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public <T> boolean hset(String key, String fieldKey, T obj) {
+        try (Jedis jedis = jedisCluster.getResource()) {
+            return jedis.hset(key, fieldKey, serializer.serialize(obj)) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public <T> List<T> hgetall(String key, Class<T> valueType) {
+        List<T> list = new ArrayList<>();
+        try (Jedis jedis = jedisCluster.getResource()) {
+            Map<String, String> kvs = jedis.hgetAll(key);
+            for (Map.Entry<String, String> entry : kvs.entrySet()) {
+                if (!Strings.isNullOrEmpty(entry.getValue())) {
+                    list.add(serializer.deserialize(entry.getValue(), valueType));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean hdel(String key, String... fieldKeys) {
+        if (fieldKeys == null || fieldKeys.length == 0) {
+            return false;
+        }
+        try (Jedis jedis = jedisCluster.getResource()) {
+            return jedis.hdel(key, fieldKeys) == fieldKeys.length;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public <T> void hmset(String key, Map<String, T> objs) {
+        if (objs == null || objs.size() == 0) {
+            return;
+        }
+        try (Jedis jedis = jedisCluster.getResource()) {
+            Map<String, String> map = new TreeMap<>();
+            for (Map.Entry<String, T> entry : objs.entrySet()) {
+                map.put(entry.getKey(), serializer.serialize(entry.getValue()));
+            }
+            jedis.hmset(key, map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

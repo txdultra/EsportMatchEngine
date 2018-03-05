@@ -10,5 +10,10 @@ import java.util.Collection;
 public interface IEnrollPlayerStorage {
     Collection<EnrollPlayer> getPlayers(int matchId);
 
-    void savePlayerFirstNode(String playerId,int matchId, String nodeId);
+    void savePlayerFirstNode(String playerId, int matchId, String nodeId);
+
+    EnrollPlayer get(String playerId, int matchId);
+
+    boolean save(EnrollPlayer player);
+
 }

@@ -14,4 +14,6 @@ public interface MatchGroupStageMapper extends CrudMapper<GroupStageRow,String> 
     Collection<String> getNodeIdsByGroupId(@Param("groupId") String groupId);
 
     long upsert(GroupStageRow row);
+
+    Collection<GroupStageRow> gets(@Param("groupId") String groupId);
 }

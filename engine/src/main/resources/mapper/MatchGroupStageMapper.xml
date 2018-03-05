@@ -18,6 +18,10 @@
         select node_id from match_group_stages where group_id=#{groupId}
     </select>
 
+    <select id="gets" resultMap="result">
+        select * from match_group_stages where group_id=#{groupId}
+    </select>
+
     <insert id="insert" parameterType="com.cj.engine.core.GroupStageRow">
         insert into match_group_stages(node_id,group_id,wins,loses,pings,scores)
         values(#{nodeId},#{groupId},#{wins},#{loses},#{pings},#{scores})

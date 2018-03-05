@@ -7,6 +7,7 @@
         <result column="lose_next_id" jdbcType="VARCHAR" property="loseNextId"/>
         <result column="group_id" jdbcType="VARCHAR" property="groupId"/>
         <result column="pattern_id" jdbcType="INTEGER" property="patternId"/>
+        <result column="match_id" jdbcType="INTEGER" property="matchId"/>
         <result column="idx" jdbcType="SMALLINT" property="index"/>
         <result column="player_id" jdbcType="INTEGER" property="playerId"/>
         <result column="state" javaType="com.cj.engine.core.VsNodeState" property="state"/>

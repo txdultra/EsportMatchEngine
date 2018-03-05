@@ -16,29 +16,31 @@ public class RandomPlayerAssignStrategy implements IPlayerAssignStrategy {
     @Override
     public MResult assign(AbstractMatchPattern pattern, Collection<EnrollPlayer> players) {
         ArrayList<EnrollPlayer> rndPlayers = new ArrayList<>();
-        ArrayList<SeedPlayer> rndSeeders = new ArrayList<>();
+        ArrayList<EnrollPlayer> rndSeeders = new ArrayList<>();
 
         if(players != null) {
             for (EnrollPlayer p : players) {
-                if (p.getPlayerType() == PlayerTypes.Enroller)
+                if (p.getType() == PlayerTypes.Enroller) {
                     rndPlayers.add(p);
-                if (p.getPlayerType() == PlayerTypes.Seeder)
-                    rndSeeders.add((SeedPlayer)p);
+                }
+                if (p.getType() == PlayerTypes.Seeder) {
+                    rndSeeders.add(p);
+                }
             }
         }
         Collections.shuffle(rndPlayers);
         Collections.shuffle(rndSeeders);
 
-        Integer idx = 0;
-        Integer i = 0;
+        int idx = 0;
+        int i = 0;
         MatchRound mr = pattern.getMatchRound(1);
         List<VsGroup> groups = pattern.getVsGroups(mr.getId());
-        for (SeedPlayer player : rndSeeders) {
+        for (EnrollPlayer player : rndSeeders) {
             VsGroup group = groups.get(i);
             List<VsNode> nodes = pattern.getVsNodes(group.getId());
             VsNode node = nodes.get(idx);
             node.setPlayerId(player.getPlayerId());
-            player.setFirstNodeId(node.getId());
+            player.setNodeId(node.getId());
             player.modify();
             node.modify();
             i++;
@@ -53,7 +55,7 @@ public class RandomPlayerAssignStrategy implements IPlayerAssignStrategy {
             List<VsNode> nodes = pattern.getVsNodes(group.getId());
             VsNode node = nodes.get(idx);
             node.setPlayerId(player.getPlayerId());
-            player.setFirstNodeId(node.getId());
+            player.setNodeId(node.getId());
             player.modify();
             node.modify();
             i++;

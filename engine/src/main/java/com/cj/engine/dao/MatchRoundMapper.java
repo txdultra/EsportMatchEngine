@@ -8,7 +8,7 @@ import java.util.Collection;
 
 @Mapper
 public interface MatchRoundMapper extends CrudMapper<MatchRound,String> {
-    Collection<MatchRound> gets(@Param("patternId") int patternId, @Param("category") short category);
+    Collection<MatchRound> gets(@Param("patternId") int patternId);
 
     long batchInsert(@Param("list") Collection<MatchRound> list);
 

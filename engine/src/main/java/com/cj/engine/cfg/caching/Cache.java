@@ -2,6 +2,7 @@ package com.cj.engine.cfg.caching;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tangxd
@@ -20,4 +21,14 @@ public interface Cache {
     long dels(String[] keys);
 
     <T> Collection<T> gets(Collection<String> keys, Class<T> valueType);
+
+    <T> T hget(String key, String fieldKey, Class<T> valueType);
+
+    <T> boolean hset(String key,String fieldKey,T obj);
+
+    <T> List<T> hgetall(String key,Class<T> valueType);
+
+    boolean hdel(String key,String... fieldKeys);
+
+    <T> void hmset(String key, Map<String, T> objs);
 }

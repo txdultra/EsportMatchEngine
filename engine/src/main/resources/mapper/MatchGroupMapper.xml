@@ -5,6 +5,7 @@
         <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="players" jdbcType="INTEGER" property="groupPlayerCount"/>
         <result column="pattern_id" jdbcType="INTEGER" property="patternId"/>
+        <result column="match_id" jdbcType="INTEGER" property="matchId"/>
         <result column="idx" jdbcType="SMALLINT" property="index"/>
         <result column="winners" jdbcType="SMALLINT" property="winners"/>
         <result column="round" jdbcType="SMALLINT" property="round"/>

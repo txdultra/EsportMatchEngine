@@ -12,9 +12,9 @@ public class GroupStageRow extends BaseModel {
 
     private String nodeId;
     private String groupId;
-    private int wins;
-    private int loses;
-    private int pings;
+    private short wins;
+    private short loses;
+    private short pings;
     private double scores;
 
     public void addWins(int ws) {

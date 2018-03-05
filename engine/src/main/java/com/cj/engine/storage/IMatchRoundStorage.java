@@ -10,6 +10,8 @@ import java.util.Collection;
 public interface IMatchRoundStorage {
     MatchRound get(String id);
 
+    Collection<MatchRound> getRounds(int patternId);
+
     Collection<MatchRound> getRounds(int patternId, short category);
 
     boolean create(MatchRound round);

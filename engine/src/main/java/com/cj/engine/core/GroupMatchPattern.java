@@ -99,7 +99,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
             gcs = (counts / this.getCfg().getGroupPlayerNumber()) + 1;
         }
         MatchRound mr = new MatchRound();
-        mr.setRound(1);
+        mr.setRound((short)1);
         mr.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Round));
         mr.setMatchId(this.getCfg().getMatchId());
         mr.setPatternId(this.getPatternId());
@@ -117,7 +117,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
                 gc = tmp;
             }
             tmp -= this.getCfg().getGroupPlayerNumber();
-            VsGroup group = this.newVsGroup(1, i, mr.getId(), gc, true);
+            VsGroup group = this.newVsGroup((short)1, i, mr.getId(), gc, true);
             group.setPatternId(mr.getPatternId());
             i++;
         }
@@ -140,7 +140,7 @@ public class GroupMatchPattern extends AbstractMatchPattern {
 //    }
 
     @Override
-    protected VsGroup newVsGroup(int round, int index, String roundId, int nodes, boolean cache) {
+    protected VsGroup newVsGroup(short round, int index, String roundId, int nodes, boolean cache) {
         VsGroup group = new VsGroup();
         group.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Group));
         group.setGroupPlayerCount(nodes);
@@ -148,13 +148,15 @@ public class GroupMatchPattern extends AbstractMatchPattern {
         group.setIndex(index);
         group.setRoundId(roundId);
         group.setPatternId(this.getCfg().getPatternId());
+        group.setMatchId(this.getCfg().getMatchId());
         group.modify();
-        for (int i = 0; i < nodes; i++) {
+        for (short i = 0; i < nodes; i++) {
             VsNode node = new VsNode();
             node.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Node));
             node.setIndex(i);
             node.setPatternId(this.getCfg().getPatternId());
             node.setGroupId(group.getId());
+            node.setMatchId(this.getCfg().getMatchId());
             node.modify();
             this.nodes.put(node.getId(), node);
             this.addStageRow(group.getId(), node.getId());

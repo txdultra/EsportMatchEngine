@@ -31,4 +31,11 @@ public interface IMatchEngine {
      * 重置赛事
      */
     void reset();
+
+    /**
+     * 获取赛事模型
+     * @param patternId
+     * @return
+     */
+    AbstractMatchPattern getPattern(int patternId);
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cj.engine.dao.EnrollPlayerMapper">
-    <resultMap id="result" type="com.cj.engine.model.EnrollPlayerInfo">
+    <resultMap id="result" type="com.cj.engine.core.EnrollPlayer">
         <result column="player_id" jdbcType="INTEGER" property="playerId"/>
         <result column="match_id" jdbcType="INTEGER" property="matchId"/>
         <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
@@ -12,24 +12,24 @@
     </resultMap>
 
     <select id="get" resultMap="result">
-        select * from match_enroll_players where player_id=#{playerId} and match_id=#{matchId}
+        select * from match_enrollers where player_id=#{playerId} and match_id=#{matchId}
     </select>
 
     <select id="gets" resultMap="result">
-        select * from match_enroll_players where match_id=#{matchId}
+        select * from match_enrollers where match_id=#{matchId}
     </select>
 
-    <insert id="insert" parameterType="com.cj.engine.model.EnrollPlayerInfo" keyColumn="id" useGeneratedKeys="true">
-        INSERT into match_enroll_players(player_id,match_id,node_id,`type`,lvl_id,properties)
-        values(#{playerId},#{matchId},#{nodeId},#{type},#{levelId},#{properties})
+    <insert id="insert" parameterType="com.cj.engine.core.EnrollPlayer">
+        INSERT into match_enrollers(player_id,match_id,node_id,`type`,lvl_id,post_time,properties)
+        values(#{playerId},#{matchId},#{nodeId},#{type},#{levelId},#{postTime},#{properties})
     </insert>
 
     <update id="updateNode">
-        update match_enroll_players set node_id=#{nodeId} where player_id=#{playerId} and match_id=#{matchId}
+        update match_enrollers set node_id=#{nodeId} where player_id=#{playerId} and match_id=#{matchId}
     </update>
 
-    <update id="update" parameterType="com.cj.engine.model.EnrollPlayerInfo">
-        update match_enroll_players set node_id=#{nodeId},`type`=#{type},lvl_id=#{levelId},properties=#{properties}
+    <update id="update" parameterType="com.cj.engine.core.EnrollPlayer">
+        update match_enrollers set node_id=#{nodeId},`type`=#{type},lvl_id=#{levelId},post_time=#{postTime},properties=#{properties}
         where player_id=#{playerId} and match_id=#{matchId}
     </update>
 </mapper>

@@ -1,0 +1,55 @@
+spring:
+  datasource:
+      name: mydb
+      url: jdbc:mysql://localhost:3306/cj_mengine?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true
+      username: root
+      password: ultra
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      initialSize: 5
+      minIdle: 5
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      spring.datasource.filters: stat,wall,log4j
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+  redis:
+#      cluster:
+#        nodes: 172.28.2.89:6379
+#        max-redirects: 6
+      pool:
+        max-idle: 20
+        min-idle: 5
+        max-wait: -1
+        max-active: 30
+      password: abc123
+      so-timeout: 6000
+      timeout: 6000
+      max-attempts: 6
+      host: localhost
+      port: 32878
+
+server:
+  port: 8088
+  compression:
+    enabled: true
+    min-response-size: 2048
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  tomcat:
+    uri-encoding: UTF-8
+
+
+logging:
+  config: classpath:logging-config.xml
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  config-location: classpath:mybatis/mybatis-config.xml

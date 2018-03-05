@@ -157,11 +157,11 @@ public class DoubleMatchPattern extends SingleMatchPattern {
         //实现败者组模型
         int maxRound = calculateLoseMaxRounds(counts);
         int maxRGs = calculateLoseRoundGroupQuantities(counts);
-        int i = 1;
+        short i = 1;
         while (maxRound >= i) {
             MatchRound mr = new MatchRound();
             //败者组赛程
-            mr.setCategory(1);
+            mr.setCategory((short)1);
             mr.setRound(i);
             mr.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Round));
             mr.setMatchId(this.getCfg().getMatchId());
@@ -176,7 +176,7 @@ public class DoubleMatchPattern extends SingleMatchPattern {
                 }
                 group.setRound(i);
                 //败者组赛程
-                group.setCategory(1);
+                group.setCategory((short)1);
                 this.loseGroups.put(group.getId(), group);
             }
             //加入到模型数据中
@@ -190,14 +190,14 @@ public class DoubleMatchPattern extends SingleMatchPattern {
         }
         //胜者组最后多加一轮
         MatchRound gjMr = new MatchRound();
-        gjMr.setRound(this.maxRound + 1);
+        gjMr.setRound((short)(this.maxRound + 1));
         gjMr.setId(MatchHelper.getItemId(this.getCfg().getType(), PatternItemTypes.Round));
         gjMr.setMatchId(this.getCfg().getMatchId());
         gjMr.setPatternId(this.getPatternId());
         gjMr.setGroupCounts(1);
         gjMr.modify();
         this.rounds.put(gjMr.getId(), gjMr);
-        VsGroup last = this.newVsGroup(this.maxRound + 1, 0, gjMr.getId(), this.getCfg().getGroupPlayerNumber(), true);
+        VsGroup last = this.newVsGroup((short)(this.maxRound + 1), 0, gjMr.getId(), this.getCfg().getGroupPlayerNumber(), true);
         this.loseGroups.put(last.getId(), last);
         this.maxRound++;
 

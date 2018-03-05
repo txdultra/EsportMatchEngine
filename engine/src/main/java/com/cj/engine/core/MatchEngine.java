@@ -44,9 +44,9 @@ public class MatchEngine implements IMatchEngine {
         }
 
         match = matchService.get(this.matchId);
-        if(null == match) {
+        if (null == match) {
             RuntimeException e = new RuntimeException("赛事数据未保存在数据库中");
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             throw e;
         }
 
@@ -59,7 +59,6 @@ public class MatchEngine implements IMatchEngine {
         List<AbstractMatchPattern> patterns = new ArrayList<>();
         for (BasePatternConfig cfg : cfgs) {
             AbstractMatchPattern pattern = MatchHelper.newFactory(cfg);
-            //pattern.setDataProvider(this.provider);
             pattern.init();
             patterns.add(pattern);
         }
@@ -102,7 +101,7 @@ public class MatchEngine implements IMatchEngine {
             fMp = null;
             //fMp = fMp.getNextPattern();
         }
-        this.matchService.saveState(this.matchId,MatchStates.UnInitialize);
+        this.matchService.saveState(this.matchId, MatchStates.UnInitialize);
     }
 
     public synchronized void saveCfgs() {
@@ -149,10 +148,6 @@ public class MatchEngine implements IMatchEngine {
 //        }
 //        return cfgs;
 //    }
-//
-//    public void setDataProvider(IPatternDataProvider provider) {
-//        this.provider = provider;
-//    }
 
     @Override
     public MResult buildSchedule(int maxPlayers) {
@@ -171,26 +166,28 @@ public class MatchEngine implements IMatchEngine {
         AbstractMatchPattern fMp = this.startPattern;
         while (fMp != null) {
             boolean ok = fMp.save();
-            if(!ok ) {
+            if (!ok) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return;
             }
             fMp = null;
             //fMp = fMp.getNextPattern();
         }
-        this.matchService.saveState(this.matchId,MatchStates.Initialized);
+        this.matchService.saveState(this.matchId, MatchStates.Initialized);
     }
-//
-//    public AbstractMatchPattern getPattern(String patternId) {
-//        AbstractMatchPattern fMp = this.startPattern;
-//        while (fMp != null) {
-//            if (fMp.getPatternId().equals(patternId))
-//                return fMp;
-//            fMp = fMp.getNextPattern();
-//        }
-//        return null;
-//    }
-//
+
+    @Override
+    public AbstractMatchPattern getPattern(int patternId) {
+        AbstractMatchPattern fMp = this.startPattern;
+        while (fMp != null) {
+            if (fMp.getPatternId() == patternId) {
+                return fMp;
+            }
+            //fMp = fMp.getNextPattern();
+        }
+        return null;
+    }
+
 //    public Collection<AbstractMatchPattern> getPatterns() {
 //        List<AbstractMatchPattern> mps = new ArrayList<>();
 //        AbstractMatchPattern mp = this.startPattern;

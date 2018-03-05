@@ -10,7 +10,7 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public class MatchVs {
+public class MatchVs extends BaseModel {
     private int id;
     private String leftId = "";
     private String rightId = "";

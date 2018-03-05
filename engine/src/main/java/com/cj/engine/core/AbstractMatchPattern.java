@@ -312,7 +312,7 @@ public abstract class AbstractMatchPattern {
         MResult result = dataService.getAssignStrategy().assign(this, players);
         if (result.getCode().equals(MResult.SUCCESS_CODE)) {
             for (EnrollPlayer p : players) {
-                dataService.getEnrollPlayerStorage().savePlayerFirstNode(p.getPlayerId(), p.getMatchId(), p.getFirstNodeId());
+                dataService.getEnrollPlayerStorage().savePlayerFirstNode(p.getPlayerId(), p.getMatchId(), p.getNodeId());
             }
             this.assignedPlayersEvent();
             this.state = PatternStates.AssignedPlayers;
@@ -522,7 +522,7 @@ public abstract class AbstractMatchPattern {
     //help method
     ///////////////////////////////////////////////////////////////////////
 
-    protected VsGroup newVsGroup(int round, int index, String roundId, int nodes, boolean cache) {
+    protected VsGroup newVsGroup(short round, int index, String roundId, int nodes, boolean cache) {
         VsGroup group = new VsGroup();
         group.setId(MatchHelper.getItemId(this.cfg.getType(), PatternItemTypes.Group));
         group.setGroupPlayerCount(nodes);
@@ -530,14 +530,16 @@ public abstract class AbstractMatchPattern {
         group.setIndex(index);
         group.setRoundId(roundId);
         group.setPatternId(this.cfg.getPatternId());
+        group.setMatchId(this.cfg.getMatchId());
         group.modify();
-        for (Integer i = 0; i < nodes; i++) {
+        for (short i = 0; i < nodes; i++) {
             VsNode node = new VsNode();
             node.setId(MatchHelper.getItemId(this.cfg.getType(), PatternItemTypes.Node));
             node.setIndex(i);
             node.setPatternId(this.cfg.getPatternId());
             node.setGroupId(group.getId());
             node.setRound(round);
+            node.setMatchId(this.cfg.getMatchId());
             node.modify();
             this.nodes.put(node.getId(), node);
         }
