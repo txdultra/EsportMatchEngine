@@ -17,4 +17,6 @@ public interface EnrollPlayerMapper {
     long insert(EnrollPlayer player);
 
     long update(EnrollPlayer player);
+
+    int counts(@Param("matchId") int matchId);
 }

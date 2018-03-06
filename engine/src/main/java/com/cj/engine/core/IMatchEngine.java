@@ -2,6 +2,8 @@ package com.cj.engine.core;
 
 import com.cj.engine.core.cfg.BasePatternConfig;
 
+import java.util.Collection;
+
 public interface IMatchEngine {
 
     /**
@@ -38,4 +40,27 @@ public interface IMatchEngine {
      * @return
      */
     AbstractMatchPattern getPattern(int patternId);
+
+    /**
+     * 获取第一个模型
+     * @return
+     */
+    AbstractMatchPattern getFirstPattern();
+
+    /**
+     * 获取所有赛事模型
+     */
+    Collection<AbstractMatchPattern> getPatterns();
+
+    /**
+     * 分配选手
+     * @return
+     */
+    MResult assignPlayers();
+
+    /**
+     * 是否预览
+     * @param isPreview
+     */
+    void setIsPreview(boolean isPreview);
 }

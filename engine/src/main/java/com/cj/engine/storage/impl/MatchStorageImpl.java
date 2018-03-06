@@ -22,4 +22,9 @@ public class MatchStorageImpl implements IMatchStorage {
     public boolean saveState(int matchId, MatchStates state) {
         return matchMapper.updateState(matchId, state) > 0;
     }
+
+    @Override
+    public boolean save(MatchInfo match) {
+        return matchMapper.insert(match) > 0;
+    }
 }

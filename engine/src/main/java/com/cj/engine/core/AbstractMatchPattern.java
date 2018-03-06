@@ -71,6 +71,15 @@ public abstract class AbstractMatchPattern {
         if (this.initialized) {
             return;
         }
+        if(!this.cfg.isPreview()) {
+            this.loadData();
+        }
+        this.initialize();
+        //加载扩展数据
+        this.initExt();
+    }
+
+    private void loadData() {
         //装载模型结构
         Collection<MatchRound> rounds = dataService.getMatchRoundStorage().getRounds(cfg.getPatternId(), (short) 0);
         for (MatchRound round : rounds) {
@@ -93,9 +102,6 @@ public abstract class AbstractMatchPattern {
         this.maxRound = rounds.size();
 
         state = dataService.getPatternStorage().getState(this.getPatternId());
-        this.initialize();
-        //加载扩展数据
-        this.initExt();
     }
 
     private synchronized void initialize() {
@@ -175,7 +181,6 @@ public abstract class AbstractMatchPattern {
 //        this.getAssignStrategy = strategy;
 //    }
 
-    @Transactional(rollbackFor = Exception.class)
     public synchronized MResult buildSchedule(int players) {
         if (this.state.code() >= PatternStates.BuildedSchedule.code()) {
             return new MResult("1102", "当前状态不允许构建赛程");
@@ -307,7 +312,7 @@ public abstract class AbstractMatchPattern {
      *
      * @return
      */
-    public MResult assignPlayers() {
+    protected MResult assignPlayers() {
         Collection<EnrollPlayer> players = this.players.values();
         MResult result = dataService.getAssignStrategy().assign(this, players);
         if (result.getCode().equals(MResult.SUCCESS_CODE)) {

@@ -13,5 +13,5 @@ public class MatchInfo extends PropertyEntity {
     private int id;
     private String title;
     private MatchStates state = MatchStates.UnInitialize;
-    private Date postTime;
+    private Date postTime = new Date();
 }

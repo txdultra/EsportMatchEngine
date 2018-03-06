@@ -1,7 +1,5 @@
 package com.cj.engine.core;
 
-import com.cj.engine.core.VsNode;
-
 /**
  * Created by tang on 2016/4/18.
  */

@@ -5,7 +5,8 @@ import com.cj.engine.model.CodeBaseEnum;
 public enum MatchStates implements CodeBaseEnum {
     UnInitialize(0),
     Initialized(1),
-    FINISHED(99);
+    Assigned(2),
+    Finished(99);
 
     private int value = 0;
 
@@ -18,8 +19,10 @@ public enum MatchStates implements CodeBaseEnum {
                 return UnInitialize;
             case 1:
                 return Initialized;
+            case 2:
+                return Assigned;
             case 99:
-                return FINISHED;
+                return Finished;
             default:
                 throw new IllegalArgumentException("参数非法");
         }

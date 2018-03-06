@@ -16,5 +16,5 @@ public class EnrollPlayer extends BaseModel {
     private String nodeId;
     private PlayerTypes type = PlayerTypes.Enroller;
     private int levelId;
-    private Date postTime;
+    private Date postTime = new Date();
 }

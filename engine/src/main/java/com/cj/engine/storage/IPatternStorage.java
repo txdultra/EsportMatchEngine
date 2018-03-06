@@ -13,4 +13,6 @@ public interface IPatternStorage {
     List<MatchPatternInfo> gets(int matchId);
 
     MatchPatternInfo get(int id);
+
+    boolean save(MatchPatternInfo patternInfo);
 }

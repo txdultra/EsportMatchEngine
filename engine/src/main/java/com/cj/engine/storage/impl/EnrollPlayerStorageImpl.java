@@ -64,9 +64,14 @@ public class EnrollPlayerStorageImpl implements IEnrollPlayerStorage {
     @Override
     public boolean save(EnrollPlayer player) {
         boolean ok = playerMapper.insert(player) > 0;
-        if(ok) {
-            cache.hset(cacheHashKey(player.getMatchId()),player.getPlayerId(),player);
+        if (ok) {
+            cache.hset(cacheHashKey(player.getMatchId()), player.getPlayerId(), player);
         }
         return ok;
+    }
+
+    @Override
+    public int counts(int matchId) {
+        return playerMapper.counts(matchId);
     }
 }

@@ -16,4 +16,6 @@ public interface IEnrollPlayerStorage {
 
     boolean save(EnrollPlayer player);
 
+    int counts(int matchId);
+
 }

@@ -19,6 +19,10 @@
         select * from match_enrollers where match_id=#{matchId}
     </select>
 
+    <select id="counts" resultType="java.lang.Integer">
+        select count(0) FROM match_enrollers WHERE  match_id=#{matchId}
+    </select>
+
     <insert id="insert" parameterType="com.cj.engine.core.EnrollPlayer">
         INSERT into match_enrollers(player_id,match_id,node_id,`type`,lvl_id,post_time,properties)
         values(#{playerId},#{matchId},#{nodeId},#{type},#{levelId},#{postTime},#{properties})

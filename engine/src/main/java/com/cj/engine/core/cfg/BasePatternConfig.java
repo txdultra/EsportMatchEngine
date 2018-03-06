@@ -25,4 +25,6 @@ public abstract class BasePatternConfig extends HashMap<String,Object> {
     private int promotions;
     private VerdictTypes verdictType;
     private int groupPlayerNumber = 2;
+
+    private boolean preview;
 }

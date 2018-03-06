@@ -1348,7 +1348,7 @@
     <column id="339" parent="329" name="node_id">
       <Position>3</Position>
       <DataType>varchar(32)|0</DataType>
-      <NotNull>1</NotNull>
+      <DefaultExpression>&apos;NULL&apos;</DefaultExpression>
       <ColumnKind>normal</ColumnKind>
     </column>
     <column id="340" parent="329" name="type">

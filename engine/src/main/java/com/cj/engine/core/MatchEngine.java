@@ -25,6 +25,7 @@ public class MatchEngine implements IMatchEngine {
     private MatchInfo match;
     private AbstractMatchPattern startPattern = null;
     private List<BasePatternConfig> cfgs = new ArrayList<>();
+    private boolean isPreview;
 
     @Autowired
     private IMatchStorage matchService;
@@ -43,21 +44,29 @@ public class MatchEngine implements IMatchEngine {
             return;
         }
 
-        match = matchService.get(this.matchId);
-        if (null == match) {
-            RuntimeException e = new RuntimeException("赛事数据未保存在数据库中");
-            log.error(e.getMessage(), e);
-            throw e;
-        }
+        if (!this.isPreview) {
+            match = matchService.get(this.matchId);
+            if (null == match) {
+                RuntimeException e = new RuntimeException("赛事数据未保存在数据库中");
+                log.error(e.getMessage(), e);
+                throw e;
+            }
 
-        this.cfgs = cfgLoader.gets(this.matchId);
+            this.cfgs = cfgLoader.gets(this.matchId);
+        }
         this.initPatterns(cfgs);
         this.initialized = true;
+    }
+
+    @Override
+    public void setIsPreview(boolean isPreview) {
+        this.isPreview = isPreview;
     }
 
     private void initPatterns(Collection<BasePatternConfig> cfgs) {
         List<AbstractMatchPattern> patterns = new ArrayList<>();
         for (BasePatternConfig cfg : cfgs) {
+            cfg.setPreview(this.isPreview);
             AbstractMatchPattern pattern = MatchHelper.newFactory(cfg);
             pattern.init();
             patterns.add(pattern);
@@ -94,6 +103,7 @@ public class MatchEngine implements IMatchEngine {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void reset() {
         AbstractMatchPattern fMp = this.startPattern;
         while (fMp != null) {
@@ -188,17 +198,38 @@ public class MatchEngine implements IMatchEngine {
         return null;
     }
 
-//    public Collection<AbstractMatchPattern> getPatterns() {
-//        List<AbstractMatchPattern> mps = new ArrayList<>();
-//        AbstractMatchPattern mp = this.startPattern;
-//        for (; ; ) {
-//            if (mp != null) {
-//                mps.add(mp);
-//                mp = mp.getNextPattern();
-//            } else {
-//                break;
-//            }
-//        }
-//        return mps;
-//    }
+    @Override
+    public MResult assignPlayers() {
+        if (match.getState() != MatchStates.Initialized) {
+            return new MResult("1101", "赛程状态不允许分配选手");
+        }
+
+        AbstractMatchPattern fMp = this.startPattern;
+        MResult result = fMp.assignPlayers();
+        if (result.getCode().equals(MResult.SUCCESS_CODE)) {
+            matchService.saveState(matchId, MatchStates.Assigned);
+        }
+        return result;
+    }
+
+    @Override
+    public Collection<AbstractMatchPattern> getPatterns() {
+        List<AbstractMatchPattern> mps = new ArrayList<>();
+        AbstractMatchPattern mp = this.startPattern;
+        for (; ; ) {
+            if (mp != null) {
+                mps.add(mp);
+                break;
+                //mp = mp.getNextPattern();
+            } else {
+                break;
+            }
+        }
+        return mps;
+    }
+
+    @Override
+    public AbstractMatchPattern getFirstPattern() {
+        return this.startPattern;
+    }
 }

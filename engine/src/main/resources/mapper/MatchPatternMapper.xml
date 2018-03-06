@@ -25,7 +25,7 @@
     </select>
 
     <insert id="insert" parameterType="com.cj.engine.model.MatchPatternInfo" keyColumn="id" useGeneratedKeys="true">
-        insert into match_patterns(match_id,`type`,bo,state,idx,pid,title,promotions,group_players,post_time,state,properties)
+        insert into match_patterns(match_id,`type`,bo,state,idx,pid,title,promotions,group_players,post_time,properties)
         values(#{matchId},#{type},#{boN},#{state},#{index},#{pid},#{title},#{promotions},#{groupPlayers},#{postTime},#{properties})
     </insert>
 

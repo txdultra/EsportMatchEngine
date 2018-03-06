@@ -9,11 +9,11 @@ import lombok.Setter;
  */
 public class GroupPatternConfig extends BasePatternConfig {
 
-    private static final String SCORING_TYPE_KEY = "ScoringType";
-    private static final String BIG_WIN_SCORE_KEY = "BigWinScore";
-    private static final String BIG_LOSE_SCORE_KEY = "BigLoseScore";
-    private static final String SMALL_WIN_SCORE_KEY = "SmallWinScore";
-    private static final String SMALL_LOSE_SCORE_KEY = "SmallLoseScore";
+    private static final String SCORING_TYPE_KEY = "scoring_type";
+    private static final String BIG_WIN_SCORE_KEY = "big_win_score";
+    private static final String BIG_LOSE_SCORE_KEY = "big_lose_score";
+    private static final String SMALL_WIN_SCORE_KEY = "small_win_score";
+    private static final String SMALL_LOSE_SCORE_KEY = "small_lose_score";
 
     public GroupMatchPatternScoringTypes getScoringType() {
         if (containsKey(SCORING_TYPE_KEY)) {

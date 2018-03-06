@@ -68,4 +68,13 @@ public class PatternStorageImpl implements IPatternStorage {
         }
         return val;
     }
+
+    @Override
+    public boolean save(MatchPatternInfo patternInfo) {
+        boolean ok = patternMapper.insert(patternInfo) > 0;
+        if(ok) {
+            cache.del(cacheKeyOnList(patternInfo.getMatchId()));
+        }
+        return ok;
+    }
 }

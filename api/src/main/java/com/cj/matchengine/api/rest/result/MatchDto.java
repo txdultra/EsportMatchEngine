@@ -23,4 +23,6 @@ public class MatchDto extends BaseDto {
     private MatchStates state;
     @JsonProperty("pattern_ids")
     private Collection<Integer> patternIds = new ArrayList<>();
+    @JsonProperty("patterns")
+    private Collection<PatternDto> patterns;
 }

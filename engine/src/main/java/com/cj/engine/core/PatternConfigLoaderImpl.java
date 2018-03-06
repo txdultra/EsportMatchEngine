@@ -28,7 +28,8 @@ public class PatternConfigLoaderImpl implements PatternConfigLoader {
         return cfgs;
     }
 
-    private BasePatternConfig convert(MatchPatternInfo mpi) {
+    @Override
+    public BasePatternConfig convert(MatchPatternInfo mpi) {
         BasePatternConfig cfg = null;
         switch (mpi.getType()) {
             case Single:

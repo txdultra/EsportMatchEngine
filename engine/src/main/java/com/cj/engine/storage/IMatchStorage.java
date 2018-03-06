@@ -7,4 +7,6 @@ public interface IMatchStorage {
     MatchInfo get(int matchId);
 
     boolean saveState(int matchId, MatchStates state);
+
+    boolean save(MatchInfo match);
 }
