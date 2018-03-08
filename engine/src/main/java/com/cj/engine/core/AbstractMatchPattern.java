@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by tang on 2016/3/15.
@@ -71,7 +72,7 @@ public abstract class AbstractMatchPattern {
         if (this.initialized) {
             return;
         }
-        if(!this.cfg.isPreview()) {
+        if (!this.cfg.isPreview()) {
             this.loadData();
         }
         this.initialize();
@@ -102,6 +103,18 @@ public abstract class AbstractMatchPattern {
         this.maxRound = rounds.size();
 
         state = dataService.getPatternStorage().getState(this.getPatternId());
+    }
+
+    public Map<String, MatchRound> getAllRounds() {
+        return Collections.unmodifiableMap(this.rounds);
+    }
+
+    public Map<String, VsGroup> getAllGroups() {
+        return Collections.unmodifiableMap(this.groups);
+    }
+
+    public Map<String, VsNode> getAllNodes() {
+        return Collections.unmodifiableMap(this.nodes);
     }
 
     private synchronized void initialize() {
@@ -261,7 +274,7 @@ public abstract class AbstractMatchPattern {
                 groups.add(b);
             }
         });
-        return groups;
+        return groups.stream().sorted(Comparator.comparing(VsGroup::getIndex)).collect(Collectors.toList());
     }
 
     public List<VsGroup> getVsGroups(int round) {
@@ -279,7 +292,7 @@ public abstract class AbstractMatchPattern {
                 nodes.add(b);
             }
         });
-        return nodes;
+        return nodes.stream().sorted(Comparator.comparing(VsNode::getIndex)).collect(Collectors.toList());
     }
 
     public EnrollPlayer getPlayer(String playerId) {

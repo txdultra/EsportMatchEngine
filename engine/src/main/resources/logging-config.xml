@@ -15,7 +15,7 @@
     <contextName>RestAPI</contextName>
     <property name="LOG_PATH" value="/tmp/log"/>
     <!--设置系统日志目录-->
-    <property name="APPDIR" value="jhh-pay-center"/>
+    <property name="APPDIR" value="cj-engine"/>
     <!--
           说明：
           1、日志级别及文件

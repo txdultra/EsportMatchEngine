@@ -6,7 +6,7 @@ package com.cj.engine.core.cfg;
 public class SinglePatternConfig extends BasePatternConfig {
 
     private static final String HAS_CHAMPION_KEY = "has_champion";
-    private static final String HAS_THRIDER_KEY = "Has_thrider";
+    private static final String HAS_THRIDER_KEY = "has_thrider";
 
     public boolean hasChampion() {
         if (containsKey(HAS_CHAMPION_KEY)) {
