@@ -1,4 +1,19 @@
 spring:
+  application:
+        name: match-engine
+  cloud:
+      consul:
+        host: ${CONSUL_HOST}
+        port: ${CONSUL_PORT}
+        discovery:
+          tags: cj-engine=1.0
+          ip-address: ${DOCKER_IP}
+          port: ${SERVER_PORT}
+          prefer-ip-address: true
+          health-check-path: /health
+          deregister: true
+          instance-id: ${spring.application.name}-${DOCKER_IP}:${SERVER_PORT}
+
   datasource:
       name: mydb
       url: jdbc:mysql://${MYSQL_HOST}/cj_mengine?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true
@@ -26,10 +41,10 @@ spring:
 #        nodes: 172.28.2.89:6379
 #        max-redirects: 6
       pool:
-        max-idle: 20
+        max-idle: 100
         min-idle: 5
         max-wait: -1
-        max-active: 30
+        max-active: 100
       password: ${REDIS_PWD}
       so-timeout: 6000
       timeout: 6000
@@ -37,8 +52,30 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
+endpoints:
+  enabled: false
+  metrics:
+    enabled: true
+    sensitive: false
+    path: /ep/metrics
+  info:
+    enabled: true
+    sensitive: false
+    path: /ep/info
+  heapdump:
+    enabled: true
+    sensitive: false
+    path: /ep/heapdump
+  trace:
+    enabled: true
+    sensitive: false
+    path: /ep/trace
+  health:
+    enabled: true
+    sensitive: false
+
 server:
-  port: 8088
+  port: ${SERVER_PORT}
   compression:
     enabled: true
     min-response-size: 2048

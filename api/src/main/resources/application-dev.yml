@@ -37,6 +37,28 @@ spring:
       host: localhost
       port: 32878
 
+endpoints:
+  enabled: false
+  metrics:
+    enabled: true
+    sensitive: false
+    path: /ep/metrics
+  info:
+    enabled: true
+    sensitive: false
+    path: /ep/info
+  heapdump:
+    enabled: true
+    sensitive: false
+    path: /ep/heapdump
+  trace:
+    enabled: true
+    sensitive: false
+    path: /ep/trace
+  health:
+    enabled: true
+    sensitive: false
+
 server:
   port: 8088
   compression:
