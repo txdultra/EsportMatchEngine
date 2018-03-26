@@ -2,7 +2,10 @@ image: maven:3.5.3-jdk-8
 
 build:
   stage: build
+  only:
+    - master
   script:
     - mvn compiler:compile
+    - mvn package
   tags:
     - java
