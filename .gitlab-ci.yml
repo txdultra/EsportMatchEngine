@@ -6,6 +6,6 @@ build:
     - master
   script:
     - mvn compiler:compile
-    - mvn package
+    - mvn package -Dmaven.test.skip=true
   tags:
     - java
