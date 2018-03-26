@@ -8,7 +8,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="api" />
         <module name="engine" />
-        <module name="match" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
